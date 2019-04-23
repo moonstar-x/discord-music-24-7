@@ -1,0 +1,27 @@
+{
+  "name": "discord-music-24-7",
+  "version": "1.0.0",
+  "description": "A 24/7 music bot for Discord.",
+  "main": "./src/app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node ./src/app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/moonstar-x/discord-music-24-7.git"
+  },
+  "author": "moonstar-x",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/moonstar-x/discord-music-24-7/issues"
+  },
+  "homepage": "https://github.com/moonstar-x/discord-music-24-7#readme",
+  "dependencies": {
+    "discord.js": "github:discordjs/discord.js",
+    "fs": "0.0.1-security",
+    "logger": "github:moonstar-x/logger",
+    "node-opus": "^0.3.1",
+    "ytdl-core": "^0.29.1"
+  }
+}

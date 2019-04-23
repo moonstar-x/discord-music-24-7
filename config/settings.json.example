@@ -1,0 +1,5 @@
+{
+  "discord_token": "YOUR_DISCORD_TOKEN_HERE",
+  "channel_id": "VOICE_CHANNEL_ID",
+  "owner_id": "OWNER_ID"
+}
