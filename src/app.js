@@ -33,7 +33,10 @@ async function playMusic(conn, entry = 0) {
   const song = queue[entry];
 
   try {
-    const stream = ytdl(song, { filter: 'audioonly' });
+    const stream = ytdl(song, { 
+      quality: 'highestaudio',
+      highWaterMark: 1<<25
+     });
 
     stream.on('info', info => {
       curSong = info.title;
