@@ -13,13 +13,14 @@ let owner = undefined;
 let channel = undefined;
 let listeners = 0;
 let dispatcher = undefined;
+let curSong = undefined;
 
 const queue = fs.readFileSync(queueFilename).toString().split('\n');
 const queueLength = queue.length;
 
 function updatePresence(songTitle) {
   // Subject to change in the future.
-  const presence = songTitle ? songTitle : 'PAUSED';
+  const presence = songTitle ? songTitle : '◼ Nothing to play';
   client.user.setPresence({
     activity: {
       name: presence,
@@ -35,11 +36,13 @@ async function playMusic(conn, entry = 0) {
     const stream = ytdl(song, { filter: 'audioonly' });
 
     stream.on('info', info => {
-      logger.info(`Playing: ${info.title}`);
-      updatePresence(info.title);
+      curSong = info.title;
+      logger.info(`Playing: ${curSong}`);
+      updatePresence(`► ${curSong}`);
 
       if (listeners <= 1) {
         dispatcher.pause();
+        updatePresence(`❙ ❙ ${curSong}`);
         logger.info(`Nobody is listening in ${channel.name}, music has been paused.`);
       }
     });
@@ -103,9 +106,11 @@ client.on('voiceStateUpdate', (oldState, newState) => {
       if (dispatcher) {
         if (listeners > 1) {
           dispatcher.resume();
+          updatePresence(`► ${curSong}`);
           logger.info(`Music has resumed, ${listeners - 1} member(s) are currently listening.`);
         } else {
           dispatcher.pause();
+          updatePresence(`❙ ❙ ${curSong}`);
           logger.info(`Nobody is listening in ${channel.name}, music has paused.`);
         }
       }
