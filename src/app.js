@@ -57,7 +57,11 @@ async function playMusic(conn, entry = 0) {
       else playMusic(conn, entry + 1);
     });
   
-    dispatcher.on('error', err => logger.error(err));
+    dispatcher.on('error', err => {
+      logger.error(err);
+      if (entry == queueLength - 1) playMusic(conn);
+      else playMusic(conn, entry + 1);
+    });
   } catch (err) {
     logger.error(err);
     if (entry == queueLength - 1) playMusic(conn);
