@@ -62,3 +62,7 @@ typings/
 
 # Personal Configs
 config/settings.json
+
+# Old files
+
+*.old.*
