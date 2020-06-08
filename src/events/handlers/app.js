@@ -4,8 +4,8 @@ const handleDebug = (info) => {
   logger.debug(info);
 };
 
-const handleError = () => {
-
+const handleError = (error) => {
+  logger.error(error);
 };
 
 const handleGuildCreate = () => {
@@ -16,12 +16,13 @@ const handleGuildDelete = () => {
 
 };
 
-const handleGuildUnavailable = () => {
-
+const handleGuildUnavailable = (guild) => {
+  logger.warn(`Guild ${guild.name} is currently unavailable!`);
 };
 
 const handleInvalidated = () => {
-
+  logger.error('Client connection invalidated, terminating execution with code 1.');
+  process.exit(1);
 };
 
 const handleReady = () => {
@@ -32,8 +33,8 @@ const handleVoiceStateUpdate = () => {
 
 };
 
-const handleWarn = () => {
-
+const handleWarn = (info) => {
+  logger.warn(info);
 };
 
 module.exports = {
