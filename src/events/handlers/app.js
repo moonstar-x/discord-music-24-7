@@ -25,8 +25,9 @@ const handleInvalidated = () => {
   process.exit(1);
 };
 
-const handleReady = () => {
-  logger.info('Connected to Discord!');
+const handleReady = (player) => {
+  logger.info('Connected to Discord! - Ready.');
+  player.updatePresence();
 };
 
 const handleVoiceStateUpdate = () => {
