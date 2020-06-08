@@ -8,12 +8,26 @@ const handleError = (error) => {
   logger.error(error);
 };
 
-const handleGuildCreate = () => {
+const handleGuildCreate = (client, guild) => {
+  const numOfGuilds = client.guilds.cache.array().length;
 
+  if (numOfGuilds > 1) {
+    logger.warn(`Joined the guild ${guild.name}. I'm designed to work only on one server. Currently I'm connected to ${numOfGuilds} servers, unexpected behavior may occur.`);
+  } else {
+    logger.info(`Joined the guild ${guild.name}!`);
+  }
 };
 
-const handleGuildDelete = () => {
+const handleGuildDelete = (client, guild) => {
+  const numOfGuilds = client.guilds.cache.array().length;
 
+  if (numOfGuilds > 1) {
+    logger.warn(`Left the guild ${guild.name}. I'm designed to work only on one server. Currently I'm connected to ${numOfGuilds} servers, unexpected behavior may occur.`);
+  } else if (numOfGuilds === 0){
+    logger.warn(`Left the guild ${guild.name}! I'm not connected to any server! :( Please invite me to a server and restart me.`);
+  } else {
+    logger.info(`Left the guild ${guild.name}!`);
+  }
 };
 
 const handleGuildUnavailable = (guild) => {

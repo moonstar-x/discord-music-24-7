@@ -9,8 +9,8 @@ const client = new Client();
 const player = new Player(client);
 
 client.on(appEvents.error, appHandlers.handleError);
-client.on(appEvents.guildCreate, appHandlers.handleGuildCreate);
-client.on(appEvents.guildDelete, appHandlers.handleGuildDelete);
+client.on(appEvents.guildCreate, (guild) => appHandlers.handleGuildCreate(client, guild));
+client.on(appEvents.guildDelete, (guild) => appHandlers.handleGuildDelete(client, guild));
 client.on(appEvents.guildUnavailable, appHandlers.handleGuildUnavailable);
 client.on(appEvents.invalidated, appHandlers.handleInvalidated);
 client.on(appEvents.ready, () => appHandlers.handleReady(player));
