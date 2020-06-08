@@ -23,7 +23,7 @@ const handleGuildDelete = (client, guild) => {
 
   if (numOfGuilds > 1) {
     logger.warn(`Left the guild ${guild.name}. I'm designed to work only on one server. Currently I'm connected to ${numOfGuilds} servers, unexpected behavior may occur.`);
-  } else if (numOfGuilds === 0){
+  } else if (numOfGuilds === 0) {
     logger.warn(`Left the guild ${guild.name}! I'm not connected to any server! :( Please invite me to a server and restart me.`);
   } else {
     logger.info(`Left the guild ${guild.name}!`);
@@ -35,13 +35,13 @@ const handleGuildUnavailable = (guild) => {
 };
 
 const handleInvalidated = () => {
-  logger.error('Client connection invalidated, terminating execution with code 1.');
+  logger.fatal('Client connection invalidated, terminating execution with code 1.');
   process.exit(1);
 };
 
 const handleReady = (player) => {
   logger.info('Connected to Discord! - Ready.');
-  player.updatePresence();
+  player.initialize();
 };
 
 const handleVoiceStateUpdate = () => {

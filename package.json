@@ -36,6 +36,9 @@
   "eslintConfig": {
     "extends": [
       "greencoast/node"
-    ]
+    ],
+    "rules": {
+      "camelcase": "off"
+    }
   }
 }

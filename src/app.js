@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 const { Client } = require('discord.js');
 const { discord_token } = require('../config/settings');
 const appEvents = require('./events/app');
