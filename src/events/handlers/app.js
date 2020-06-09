@@ -44,8 +44,37 @@ const handleReady = (player) => {
   player.initialize();
 };
 
-const handleVoiceStateUpdate = () => {
+const handleVoiceStateUpdate = (player, oldState, newState) => {
+  const oldChannel = oldState.channel ? oldState.channel.id : null;
+  const newChannel = newState.channel ? newState.channel.id : null;
 
+  if (oldChannel === newChannel) {
+    return;
+  }
+
+  const botWasInOldChannel = oldChannel === player.channel.id;
+  const botIsInNewChannel = newChannel === player.channel.id;
+
+  if (botWasInOldChannel && !botIsInNewChannel && newState.id === player.client.user.id) {
+    logger.debug('UPDATING BOT CHANNEL');
+    player.updateChannel(newState.channel);
+    player.updateListeners();
+    player.updateDispatcherStatus();
+    return;
+  }
+
+  if ((!oldChannel && botIsInNewChannel) || botIsInNewChannel) {
+    logger.info(`User ${newState.member.displayName} has joined ${player.channel.name}.`);
+    player.updateListeners();
+    player.updateDispatcherStatus();
+    return;
+  }
+
+  if ((!newChannel && botWasInOldChannel) || botWasInOldChannel) {
+    logger.info(`User ${oldState.member.displayName} has left ${player.channel.name}.`);
+    player.updateListeners();
+    player.updateDispatcherStatus();
+  }
 };
 
 const handleWarn = (info) => {

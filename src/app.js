@@ -13,7 +13,7 @@ client.on(appEvents.guildDelete, (guild) => appHandlers.handleGuildDelete(client
 client.on(appEvents.guildUnavailable, appHandlers.handleGuildUnavailable);
 client.on(appEvents.invalidated, appHandlers.handleInvalidated);
 client.on(appEvents.ready, () => appHandlers.handleReady(player));
-client.on(appEvents.voiceStateUpdate, appHandlers.handleVoiceStateUpdate);
+client.on(appEvents.voiceStateUpdate, (oldState, newState) => appHandlers.handleVoiceStateUpdate(player, oldState, newState));
 client.on(appEvents.warn, appHandlers.handleWarn);
 
 if (process.argv[2] === '--debug') {

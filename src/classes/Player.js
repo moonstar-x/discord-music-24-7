@@ -8,7 +8,7 @@ const streamEvents = require('../events/stream');
 const dispatcherEvents = require('../events/dispatcher');
 
 const queueFilename = './data/queue.txt';
-const queue = fs.readFileSync(queueFilename).toString().split('\n');
+const queue = fs.readFileSync(queueFilename).toString().split('\n').filter((url) => url.startsWith('https://'));
 
 if (shuffle) {
   shuffleArray(queue);
@@ -19,8 +19,10 @@ class Player {
     this.client = client;
     this.channel = null;
     this.connection = null;
+    this.dispatcher = null;
     this.listeners = 0;
     this.songEntry = 0;
+    this.paused = true;
   }
 
   initialize() {
@@ -33,7 +35,7 @@ class Player {
           process.exit(1);
         }
 
-       this.updateChannel(channel);
+        this.updateChannel(channel);
       })
       .catch((error) => {
         logger.error(error);
@@ -41,17 +43,24 @@ class Player {
   }
 
   updateChannel(channel) {
-    channel.join()
-      .then((connection) => {
-        logger.info(`Joined ${channel.name} in ${channel.guild.name}.`);
-        this.channel = channel;
-        this.connection = connection;
-        this.updateListeners();
-        this.play();
-      })
-      .catch((error) => {
-        logger.error(error);
-      });
+    logger.info(`Joined ${channel.name} in ${channel.guild.name}.`);
+    this.channel = channel;
+
+    if (!this.connection) {
+      channel.join()
+        .then((connection) => {
+          this.connection = connection;
+          this.updateListeners();
+          this.paused = this.listeners < 1;
+
+          if (!this.dispatcher) {
+            this.play();
+          }
+        })
+        .catch((error) => {
+          logger.error(error);
+        });
+    }
   }
 
   updateListeners() {
@@ -84,35 +93,66 @@ class Player {
         quality: 'highestaudio',
         highWaterMark: 1 << 25
       });
-      const dispatcher = await this.connection.play(stream);
+      this.dispatcher = await this.connection.play(stream);
 
       stream.once(streamEvents.info, ({ title: song }) => {
         logger.info(`Playing ${song} for ${this.listeners} user(s) in ${this.channel.name}.`);
         this.updatePresence(`► ${song}`);
       });
 
-      dispatcher.on(dispatcherEvents.speaking, (speaking) => {
+      this.dispatcher.on(dispatcherEvents.speaking, (speaking) => {
         if (!speaking) {
           this.songEntry++;
           this.play();
         }
       });
 
-      dispatcher.on(dispatcherEvents.error, (error) => {
+      this.dispatcher.on(dispatcherEvents.error, (error) => {
         logger.error(error);
         this.songEntry++;
         this.play();
       });
 
       if (process.argv[2] === '--debug') {
-        dispatcher.on(dispatcherEvents.debug, (info) => {
+        this.dispatcher.on(dispatcherEvents.debug, (info) => {
           logger.debug(info);
         });
       }
     } catch (error) {
       logger.error(error);
+      this.songEntry++;
       this.play();
     }
+  }
+
+  updateDispatcherStatus() {
+    if (!this.dispatcher) {
+      return;
+    }
+
+    if (this.listeners > 0) {
+      this.resumeDispatcher();
+    } else {
+      this.pauseDispatcher();
+    }
+  }
+
+  resumeDispatcher() {
+    if (!this.paused) {
+      return;
+    }
+
+    logger.debug('RESUME');
+    this.paused = false;
+  }
+
+  pauseDispatcher() {
+    if (this.paused) {
+      return;
+    }
+
+    logger.debug('PAUSED!');
+    this.paused = true;
   }
 }
 
