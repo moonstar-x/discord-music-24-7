@@ -39,7 +39,12 @@ class Player {
         this.updateChannel(channel);
       })
       .catch((error) => {
-        logger.error(error);
+        if (error === 'DiscordAPIError: Unknown Channel') {
+          logger.fatal('The channel I tried to join no does not exist. Please check the channel ID set up in your settings file.');
+        } else {
+          logger.fatal('Something went wrong when trying to look for the channel I was supposed to join.', error);
+        }
+        process.exit(1);
       });
   }
 
