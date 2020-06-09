@@ -1,11 +1,16 @@
 {
   "name": "discord-music-24-7",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "A 24/7 music bot for Discord.",
-  "main": "./src/app.js",
+  "main": "src/app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node ./src/app.js"
+    "start": "node src/app.js",
+    "debug": "node src/app.js --debug",
+    "lint": "node_modules/.bin/eslint src"
+  },
+  "engines": {
+    "node": ">=12.0.0"
   },
   "repository": {
     "type": "git",
@@ -18,10 +23,22 @@
   },
   "homepage": "https://github.com/moonstar-x/discord-music-24-7#readme",
   "dependencies": {
-    "discord.js": "github:discordjs/discord.js",
-    "fs": "0.0.1-security",
-    "logger": "github:moonstar-x/logger",
-    "node-opus": "^0.3.1",
-    "ytdl-core": "^0.29.1"
+    "@discordjs/opus": "^0.3.2",
+    "@greencoast/logger": "^1.0.1",
+    "discord.js": "^12.2.0",
+    "fs-extra": "^9.0.1",
+    "ytdl-core": "^2.1.7"
+  },
+  "devDependencies": {
+    "eslint": "^7.2.0",
+    "eslint-config-greencoast": "0.0.2"
+  },
+  "eslintConfig": {
+    "extends": [
+      "greencoast/node"
+    ],
+    "rules": {
+      "camelcase": "off"
+    }
   }
 }
