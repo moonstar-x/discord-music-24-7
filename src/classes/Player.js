@@ -22,7 +22,8 @@ class Player {
     this.dispatcher = null;
     this.listeners = 0;
     this.songEntry = 0;
-    this.paused = true;
+    this.paused = null;
+    this.song = null;
   }
 
   initialize() {
@@ -51,7 +52,6 @@ class Player {
         .then((connection) => {
           this.connection = connection;
           this.updateListeners();
-          this.paused = this.listeners < 1;
 
           if (!this.dispatcher) {
             this.play();
@@ -95,13 +95,15 @@ class Player {
       });
       this.dispatcher = await this.connection.play(stream);
 
-      stream.once(streamEvents.info, ({ title: song }) => {
-        logger.info(`Playing ${song} for ${this.listeners} user(s) in ${this.channel.name}.`);
-        this.updatePresence(`► ${song}`);
+      stream.once(streamEvents.info, ({ title }) => {
+        this.song = title;
+        if (!this.updateDispatcherStatus()) {
+          this.updateSongPresence();
+        }
       });
 
       this.dispatcher.on(dispatcherEvents.speaking, (speaking) => {
-        if (!speaking) {
+        if (!speaking && !this.paused) {
           this.songEntry++;
           this.play();
         }
@@ -126,33 +128,40 @@ class Player {
   }
 
   updateDispatcherStatus() {
-    if (!this.dispatcher) {
-      return;
+    if (this.listeners > 0) {
+      return this.resumeDispatcher();
     }
 
-    if (this.listeners > 0) {
-      this.resumeDispatcher();
-    } else {
-      this.pauseDispatcher();
-    }
+    return this.pauseDispatcher();
   }
 
   resumeDispatcher() {
-    if (!this.paused) {
-      return;
+    if (this.paused === false) {
+      return false;
     }
 
-    logger.debug('RESUME');
     this.paused = false;
+    this.dispatcher.resume();
+    this.updateSongPresence();
+    logger.info(`Music has been resumed. Playing ${this.song} for ${this.listeners} user(s) in ${this.channel.name}.`);
+    return true;
   }
 
   pauseDispatcher() {
-    if (this.paused) {
-      return;
+    if (this.paused === true) {
+      return false;
     }
 
-    logger.debug('PAUSED!');
     this.paused = true;
+    this.dispatcher.pause();
+    this.updateSongPresence();
+    logger.info('Music has been paused because nobody is in my channel.');
+    return true;
+  }
+
+  updateSongPresence() {
+    const icon = this.paused ? '❙ ❙' : '►';
+    this.updatePresence(`${icon} ${this.song}`);
   }
 }
 
