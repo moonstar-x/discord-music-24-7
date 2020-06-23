@@ -127,37 +127,39 @@ class Player {
   async createStream() {
     const url = queue[this.songEntry];
     if (url.includes('youtube.com')) {
-      const stream = this.createYoutubeStream()
-      this.song = info.title;
-
-      stream.once(streamEvents.info, ({ title }) => {
-        this.song = title;
-        if (!this.updateDispatcherStatus()) {
-          this.updateSongPresence();
-        }
-      });
+      return this.createYoutubeStream()
 
     } else if (url.includes('soundcloud.com') && !!this.soundcloudClientID) {
-      const stream = await this.createSoundcloudStream();
-      const info = await scdl.getInfo(url, this.soundcloudClientID);
-
-      this.song = info.title;
-      if (!this.updateDispatcherStatus()) {
-        this.updateSongPresence();
-      }
-      return stream
+      return await this.createSoundcloudStream();
     }
   }
 
   createYoutubeStream() {
-    ytdl(queue[this.songEntry], {
+    const stream = ytdl(queue[this.songEntry], {
       quality: 'highestaudio',
       highWaterMark: 1 << 25
     });
+
+    stream.once(streamEvents.info, ({ title }) => {
+      this.song = title;
+      if (!this.updateDispatcherStatus()) {
+        this.updateSongPresence();
+      }
+    });
+
+    return stream
   }
 
   async createSoundcloudStream() {
-    return await scdl.download(queue[this.songEntry], this.soundcloudClientID);
+    const stream = await scdl.download(queue[this.songEntry], this.soundcloudClientID);
+    const info = await scdl.getInfo(url, this.soundcloudClientID);
+
+    this.song = info.title;
+    if (!this.updateDispatcherStatus()) {
+      this.updateSongPresence();
+    }
+
+    return stream
   }
 
   updateDispatcherStatus() {
