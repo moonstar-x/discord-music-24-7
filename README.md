@@ -59,4 +59,4 @@ This bot is designed to work only on one server at a time. Inviting your bot to 
 
 ## Author
 
-This bot was made by [moonstar-x](https://github.com/moonstar-x).
+This bot was made by [moonstar-x](https://github.com/moonstar-x) with contributions from [zackradisic](https://github.com/zackradisic) (Soundcloud support).
