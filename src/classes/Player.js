@@ -2,7 +2,7 @@ const fs = require('fs-extra');
 const ytdl = require('ytdl-core');
 const scdl = require('soundcloud-downloader')
 const logger = require('@greencoast/logger');
-const { channel_id, shuffle } = require('../../config/settings');
+const { channel_id, shuffle, soundcloud_client_id } = require('../../config/settings');
 const { PRESENCE_STATUS, ACTIVITY_TYPE } = require('../constants');
 const { shuffleArray } = require('../utils');
 const streamEvents = require('../events/stream');
@@ -16,7 +16,7 @@ if (shuffle) {
 }
 
 class Player {
-  constructor(client, soundcloudClientID) {
+  constructor(client) {
     this.client = client;
     this.channel = null;
     this.connection = null;
@@ -25,7 +25,7 @@ class Player {
     this.songEntry = 0;
     this.paused = null;
     this.song = null;
-    this.soundcloudClientID = soundcloudClientID
+    this.soundcloudClientID = soundcloud_client_id
   }
 
   initialize() {
@@ -96,27 +96,8 @@ class Player {
     }
 
     try {
-      let stream;
-      const url = queue[this.songEntry]
-      if (queue[this.songEntry].includes('youtube.com')) {
-        stream = ytdl(queue[this.songEntry], {
-          quality: 'highestaudio',
-          highWaterMark: 1 << 25
-        });
-      } else if (queue[this.songEntry].includes('soundcloud.com') && this.soundcloudClientID !== undefined) {
-        stream = await scdl.download(queue[this.songEntry], this.soundcloudClientID)
-      }
+      const stream = await this.createStream()
       this.dispatcher = await this.connection.play(stream);
-
-      const info = await scdl.getInfo(url, this.soundcloudClientID)
-      this.song = info.title
-      stream.once(streamEvents.info, ({ title }) => {
-        if (!title) return
-        this.song = title;
-        if (!this.updateDispatcherStatus()) {
-          this.updateSongPresence();
-        }
-      });
 
       this.dispatcher.on(dispatcherEvents.speaking, (speaking) => {
         if (!speaking && !this.paused) {
@@ -141,6 +122,42 @@ class Player {
       this.songEntry++;
       this.play();
     }
+  }
+
+  async createStream() {
+    const url = queue[this.songEntry];
+    if (url.includes('youtube.com')) {
+      const stream = this.createYoutubeStream()
+      this.song = info.title;
+
+      stream.once(streamEvents.info, ({ title }) => {
+        this.song = title;
+        if (!this.updateDispatcherStatus()) {
+          this.updateSongPresence();
+        }
+      });
+
+    } else if (url.includes('soundcloud.com') && !!this.soundcloudClientID) {
+      const stream = await this.createSoundcloudStream();
+      const info = await scdl.getInfo(url, this.soundcloudClientID);
+
+      this.song = info.title;
+      if (!this.updateDispatcherStatus()) {
+        this.updateSongPresence();
+      }
+      return stream
+    }
+  }
+
+  createYoutubeStream() {
+    ytdl(queue[this.songEntry], {
+      quality: 'highestaudio',
+      highWaterMark: 1 << 25
+    });
+  }
+
+  async createSoundcloudStream() {
+    return await scdl.download(queue[this.songEntry], this.soundcloudClientID);
   }
 
   updateDispatcherStatus() {
