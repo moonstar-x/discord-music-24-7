@@ -1,5 +1,6 @@
 {
-  "discord_token": "YOUR_DISCORD_TOKEN_HERE",
-  "channel_id": "VOICE_CHANNEL_ID",
+  "discord_token": "",
+  "soundcloud_client_id": "",
+  "channel_id": "",
   "shuffle": true
 }

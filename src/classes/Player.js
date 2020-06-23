@@ -1,7 +1,8 @@
 const fs = require('fs-extra');
 const ytdl = require('ytdl-core');
+const scdl = require('soundcloud-downloader')
 const logger = require('@greencoast/logger');
-const { channel_id, shuffle } = require('../../config/settings');
+const { channel_id, shuffle, soundcloud_client_id } = require('../../config/settings');
 const { PRESENCE_STATUS, ACTIVITY_TYPE } = require('../constants');
 const { shuffleArray } = require('../utils');
 const streamEvents = require('../events/stream');
@@ -24,6 +25,7 @@ class Player {
     this.songEntry = 0;
     this.paused = null;
     this.song = null;
+    this.soundcloudClientID = soundcloud_client_id
   }
 
   initialize() {
@@ -94,18 +96,8 @@ class Player {
     }
 
     try {
-      const stream = ytdl(queue[this.songEntry], {
-        quality: 'highestaudio',
-        highWaterMark: 1 << 25
-      });
+      const stream = await this.createStream()
       this.dispatcher = await this.connection.play(stream);
-
-      stream.once(streamEvents.info, ({ title }) => {
-        this.song = title;
-        if (!this.updateDispatcherStatus()) {
-          this.updateSongPresence();
-        }
-      });
 
       this.dispatcher.on(dispatcherEvents.speaking, (speaking) => {
         if (!speaking && !this.paused) {
@@ -132,7 +124,49 @@ class Player {
     }
   }
 
+  async createStream() {
+    const url = queue[this.songEntry];
+    if (url.includes('youtube.com')) {
+      return this.createYoutubeStream()
+
+    } else if (url.includes('soundcloud.com') && !!this.soundcloudClientID) {
+      return await this.createSoundcloudStream();
+    }
+  }
+
+  createYoutubeStream() {
+    const stream = ytdl(queue[this.songEntry], {
+      quality: 'highestaudio',
+      highWaterMark: 1 << 25
+    });
+
+    stream.once(streamEvents.info, ({ title }) => {
+      this.song = title;
+      if (!this.updateDispatcherStatus()) {
+        this.updateSongPresence();
+      }
+    });
+
+    return stream
+  }
+
+  async createSoundcloudStream() {
+    const stream = await scdl.download(queue[this.songEntry], this.soundcloudClientID);
+    const info = await scdl.getInfo(queue[this.songEntry], this.soundcloudClientID);
+
+    this.song = info.title;
+    if (!this.updateDispatcherStatus()) {
+      this.updateSongPresence();
+    }
+
+    return stream
+  }
+
   updateDispatcherStatus() {
+    if (!this.dispatcher) {
+      return null;
+    }
+    
     if (this.listeners > 0) {
       return this.resumeDispatcher();
     }
