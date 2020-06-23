@@ -5,7 +5,7 @@ const appHandlers = require('./events/handlers/app');
 const Player = require('./classes/Player');
 
 const client = new Client();
-const player = new Player(client);
+const player = new Player(client, process.env.SOUNDCLOUD_CLIENT_ID);
 
 client.on(appEvents.error, appHandlers.handleError);
 client.on(appEvents.guildCreate, (guild) => appHandlers.handleGuildCreate(client, guild));
