@@ -152,7 +152,7 @@ class Player {
 
   async createSoundcloudStream() {
     const stream = await scdl.download(queue[this.songEntry], this.soundcloudClientID);
-    const info = await scdl.getInfo(url, this.soundcloudClientID);
+    const info = await scdl.getInfo(queue[this.songEntry], this.soundcloudClientID);
 
     this.song = info.title;
     if (!this.updateDispatcherStatus()) {
@@ -163,6 +163,10 @@ class Player {
   }
 
   updateDispatcherStatus() {
+    if (!this.dispatcher) {
+      return null;
+    }
+    
     if (this.listeners > 0) {
       return this.resumeDispatcher();
     }
