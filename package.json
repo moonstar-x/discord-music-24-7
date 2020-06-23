@@ -27,6 +27,7 @@
     "@greencoast/logger": "^1.0.1",
     "discord.js": "^12.2.0",
     "fs-extra": "^9.0.1",
+    "soundcloud-downloader": "0.0.9",
     "ytdl-core": "^2.1.7"
   },
   "devDependencies": {
