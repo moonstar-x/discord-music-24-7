@@ -1,11 +1,11 @@
 const { Client } = require('discord.js');
-const { discord_token } = require('../config/settings');
+const { discord_token, soundcloud_client_id } = require('../config/settings');
 const appEvents = require('./events/app');
 const appHandlers = require('./events/handlers/app');
 const Player = require('./classes/Player');
 
 const client = new Client();
-const player = new Player(client, process.env.SOUNDCLOUD_CLIENT_ID);
+const player = new Player(client, soundcloud_client_id);
 
 client.on(appEvents.error, appHandlers.handleError);
 client.on(appEvents.guildCreate, (guild) => appHandlers.handleGuildCreate(client, guild));
