@@ -18,7 +18,7 @@ To self-host this bot, you'll need the following:
 In order to self-host this bot, first you'll need to clone this repository.
 
 ```
-git clone https://github.com/moonstar-x/discord-music-24-7.git
+[![Run on Repl.it](https://repl.it/badge/github/kazouya25/discord-music-24-7)](https://repl.it/github/kazouya25/discord-music-24-7)
 ```
 
 Then, inside the `config` folder, rename the file *settings.json.example* to *settings.json* and edit the file with your own Discord Token, your Soundcloud Client ID (if you wish to use Soundcloud), the ID of the channel where the music should be played and finally, whether you want the music queue to be shuffled on bot startup.
