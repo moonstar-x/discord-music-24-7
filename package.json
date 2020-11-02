@@ -1,6 +1,6 @@
 {
   "name": "discord-music-24-7",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "A 24/7 music bot for Discord.",
   "main": "src/app.js",
   "scripts": {
@@ -28,7 +28,7 @@
     "discord.js": "^12.2.0",
     "fs-extra": "^9.0.1",
     "soundcloud-downloader": "0.0.9",
-    "ytdl-core": "^2.1.7"
+    "ytdl-core": "^4.0.2"
   },
   "devDependencies": {
     "eslint": "^7.2.0",
