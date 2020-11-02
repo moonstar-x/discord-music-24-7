@@ -7,6 +7,7 @@ const { PRESENCE_STATUS, ACTIVITY_TYPE } = require('../constants');
 const { shuffleArray } = require('../utils');
 const streamEvents = require('../events/stream');
 const dispatcherEvents = require('../events/dispatcher');
+const FatalError = require('./FatalError');
 
 const queueFilename = './data/queue.txt';
 const queue = fs.readFileSync(queueFilename).toString().split('\n').filter((url) => url.startsWith('https://'));
@@ -119,6 +120,11 @@ class Player {
       }
     } catch (error) {
       logger.error(error);
+
+      if (error instanceof FatalError) {
+        process.exit(1);
+      }
+
       this.songEntry++;
       this.play();
     }
@@ -129,9 +135,15 @@ class Player {
     if (url.includes('youtube.com')) {
       return this.createYoutubeStream()
 
-    } else if (url.includes('soundcloud.com') && !!this.soundcloudClientID) {
-      return await this.createSoundcloudStream();
+    } else if (url.includes('soundcloud.com')) {
+      if (!!this.soundcloudClientID) {
+        return await this.createSoundcloudStream();
+      }
+
+      throw new FatalError("Soundcloud song detected but no client ID was found!");
     }
+
+    throw new FatalError("Invalid song URL! It can only be from youtube.com or soundcloud.com");
   }
 
   createYoutubeStream() {
