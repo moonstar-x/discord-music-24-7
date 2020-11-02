@@ -56,7 +56,6 @@ const handleVoiceStateUpdate = (player, oldState, newState) => {
   const botIsInNewChannel = newChannel === player.channel.id;
 
   if (botWasInOldChannel && !botIsInNewChannel && newState.id === player.client.user.id) {
-    logger.debug('UPDATING BOT CHANNEL');
     player.updateChannel(newState.channel);
     player.updateListeners();
     player.updateDispatcherStatus();
