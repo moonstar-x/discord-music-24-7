@@ -140,7 +140,7 @@ class Player {
       highWaterMark: 1 << 25
     });
 
-    stream.once(streamEvents.info, ({ title }) => {
+    stream.once(streamEvents.info, ({ videoDetails: { title } }) => {
       this.song = title;
       if (!this.updateDispatcherStatus()) {
         this.updateSongPresence();
