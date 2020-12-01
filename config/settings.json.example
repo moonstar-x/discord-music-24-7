@@ -1,6 +1,7 @@
 {
   "discord_token": "",
   "soundcloud_client_id": "",
+  "youtube_cookie": "",
   "channel_id": "",
   "shuffle": true
 }

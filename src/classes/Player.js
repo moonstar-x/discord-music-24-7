@@ -2,7 +2,7 @@ const fs = require('fs-extra');
 const ytdl = require('ytdl-core');
 const scdl = require('soundcloud-downloader')
 const logger = require('@greencoast/logger');
-const { channel_id, shuffle, soundcloud_client_id } = require('../../config/settings');
+const { channel_id, shuffle, soundcloud_client_id, youtube_cookie } = require('../../config/settings');
 const { PRESENCE_STATUS, ACTIVITY_TYPE } = require('../constants');
 const { shuffleArray } = require('../utils');
 const streamEvents = require('../events/stream');
@@ -149,7 +149,12 @@ class Player {
   createYoutubeStream() {
     const stream = ytdl(queue[this.songEntry], {
       quality: 'highestaudio',
-      highWaterMark: 1 << 25
+      highWaterMark: 1 << 25,
+      requestOptions: {
+        headers: {
+          'Cookie': youtube_cookie
+        }
+      }
     });
 
     stream.once(streamEvents.info, ({ videoDetails: { title } }) => {
