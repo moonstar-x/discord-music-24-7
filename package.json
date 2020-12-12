@@ -28,7 +28,7 @@
     "discord.js": "^12.2.0",
     "fs-extra": "^9.0.1",
     "soundcloud-downloader": "0.0.9",
-    "ytdl-core": "^4.0.2"
+    "ytdl-core": "^4.1.4"
   },
   "devDependencies": {
     "eslint": "^7.2.0",
