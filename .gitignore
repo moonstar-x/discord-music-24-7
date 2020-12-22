@@ -64,5 +64,5 @@ typings/
 config/settings.json
 
 # Old files
-
+old/
 *.old.*
