@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the Repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v1
+        with:
+            node-version: 12.x
+      
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Lint Files
+        run: npm run lint
+
+      - name: Run Tests
+        run: npm run test:once
