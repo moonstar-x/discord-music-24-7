@@ -1,6 +1,6 @@
 {
   "name": "discord-music-24-7",
-  "version": "2.0.2",
+  "version": "3.0.0",
   "description": "A 24/7 music bot for Discord.",
   "main": "src/app.js",
   "scripts": {
@@ -23,16 +23,12 @@
   },
   "homepage": "https://github.com/moonstar-x/discord-music-24-7#readme",
   "dependencies": {
-    "@discordjs/opus": "^0.3.2",
+    "@discordjs/opus": "^0.3.3",
     "@greencoast/logger": "^1.0.1",
-    "discord.js": "^12.2.0",
-    "fs-extra": "^9.0.1",
-    "soundcloud-downloader": "0.0.9",
-    "ytdl-core": "^4.1.4"
-  },
-  "devDependencies": {
-    "eslint": "^7.2.0",
-    "eslint-config-greencoast": "0.0.2"
+    "discord.js": "^12.5.1",
+    "discord.js-commando": "github:discordjs/Commando",
+    "soundcloud-downloader": "^0.2.2",
+    "ytdl-core": "^4.2.1"
   },
   "eslintConfig": {
     "extends": [
@@ -41,5 +37,18 @@
     "rules": {
       "camelcase": "off"
     }
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.12.10",
+    "@babel/core": "^7.12.10",
+    "@babel/node": "^7.12.10",
+    "@babel/preset-env": "^7.12.11",
+    "@types/jest": "^26.0.19",
+    "babel-eslint": "^10.1.0",
+    "babel-jest": "^26.6.3",
+    "eslint": "^7.16.0",
+    "eslint-config-greencoast": "^0.0.2",
+    "jest": "^26.6.3",
+    "nodemon": "^2.0.6"
   }
 }
