@@ -11,7 +11,7 @@ class ExtendedCommand extends Command {
   }
 
   onError(err, message, ags, fromPattern, result) {
-    this.client.handleCommandError(err);
+    this.client.handleCommandError(err, `An error occurred when running the command **${this.name}** in **${message.guild?.name || 'DM'}**. Triggering message: **${message.content}**`);
     return message.reply('Something wrong happened when executing this command.');
   }
 
