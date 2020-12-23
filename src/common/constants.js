@@ -11,3 +11,9 @@ export const ACTIVITY_TYPE = {
   LISTENING: 'LISTENING',
   WATCHING: 'WATCHING'
 };
+
+export const MESSAGE_EMBED = {
+  color: '#43aa8b',
+  thumbnail: 'https://i.imgur.com/Tqnk48j.png',
+  issuesURL: 'https://github.com/moonstar-x/discord-music-24-7/issues'
+};
