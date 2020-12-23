@@ -20,6 +20,11 @@ jobs:
         uses: actions/setup-node@v1
         with:
             node-version: 12.x
+
+      - name: Use SSH Private Key
+        uses: webfactory/ssh-agent@v0.4.1
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
       
       - name: Install Dependencies
         run: npm ci
