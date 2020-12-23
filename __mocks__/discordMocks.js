@@ -2,9 +2,22 @@ export const userMock = {
   username: 'username'
 };
 
+export const commandMock = {
+  name: 'command',
+  description: 'description'
+};
+
+export const commandGroupMock = {
+  name: 'group',
+  commands: [commandMock, commandMock]
+};
+
 export const clientMock = {
   commandPrefix: '!',
-  handleCommandError: jest.fn()
+  handleCommandError: jest.fn(),
+  registry: {
+    groups: [commandGroupMock, commandGroupMock]
+  }
 };
 
 export const memberMock = {
@@ -20,5 +33,6 @@ export const messageMock = {
   guild: guildMock,
   content: 'message',
   member: memberMock,
-  author: userMock
+  author: userMock,
+  embed: jest.fn()
 };
