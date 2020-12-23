@@ -1,3 +1,4 @@
+/* eslint-disable max-statements */
 /* eslint-disable camelcase */
 import fs from 'fs';
 
@@ -14,7 +15,10 @@ describe('Common - Settings', () => {
       owner_id: 'OWNER_ID',
       shuffle: false,
       soundcloud_client_id: 'SOUNDCLOUD_CLIENT_ID',
-      youtube_cookie: 'YOUTUBE_COOKIE'
+      youtube_cookie: 'YOUTUBE_COOKIE',
+      presence_type: 'LISTENING',
+      pause_on_empty: false,
+      channel_leave_on_empty: true
     };
 
     beforeAll(() => {
@@ -49,6 +53,18 @@ describe('Common - Settings', () => {
     it('should have youtubeCookie be set to what is in the config file.', () => {
       expect(settings.youtubeCookie).toBe(mockedFile.youtube_cookie);
     });
+
+    it('should have presenceType be set to what is in the config file.', () => {
+      expect(settings.presenceType).toBe(mockedFile.presence_type);
+    });
+
+    it('should have pauseOnEmpty be set to what is in the config file.', () => {
+      expect(settings.pauseOnEmpty).toBe(mockedFile.pause_on_empty);
+    });
+
+    it('should have channelLeaveOnEmpty be set to what is in the config file.', () => {
+      expect(settings.channelLeaveOnEmpty).toBe(mockedFile.channel_leave_on_empty);
+    });
   });
 
   describe('With Environment Variables', () => {
@@ -58,6 +74,9 @@ describe('Common - Settings', () => {
     const SHUFFLE = 'false';
     const SOUNDCLOUD_CLIENT_ID = 'SOUNDCLOUD_CLIENT_ID';
     const YOUTUBE_COOKIE = 'YOUTUBE_COOKIE';
+    const PRESENCE_TYPE = 'LISTENING';
+    const PAUSE_ON_EMPTY = 'false';
+    const CHANNEL_LEAVE_ON_EMPTY = 'true';
 
     beforeAll(() => {
       existsSyncMock.mockReturnValue(false);
@@ -67,7 +86,10 @@ describe('Common - Settings', () => {
         OWNER_ID,
         SHUFFLE,
         SOUNDCLOUD_CLIENT_ID,
-        YOUTUBE_COOKIE
+        YOUTUBE_COOKIE,
+        PRESENCE_TYPE,
+        PAUSE_ON_EMPTY,
+        CHANNEL_LEAVE_ON_EMPTY
       };
 
       jest.resetModules();
@@ -96,6 +118,18 @@ describe('Common - Settings', () => {
 
     it('should have youtubeCookie be set to YOUTUBE_COOKIE.', () => {
       expect(settings.youtubeCookie).toBe(YOUTUBE_COOKIE);
+    });
+
+    it('should have presenceType be set to PRESENCE_TYPE.', () => {
+      expect(settings.presenceType).toBe(PRESENCE_TYPE);
+    });
+
+    it('should have pauseOnEmpty be set to PAUSE_ON_EMPTY.', () => {
+      expect(settings.pauseOnEmpty).toBe(PAUSE_ON_EMPTY === 'true');
+    });
+
+    it('should have channelLeaveOnEmpty be set to CHANNEL_LEAVE_ON_EMPTY.', () => {
+      expect(settings.channelLeaveOnEmpty).toBe(CHANNEL_LEAVE_ON_EMPTY === 'true');
     });
   });
 
@@ -130,6 +164,18 @@ describe('Common - Settings', () => {
 
     it('should have youtubeCookie be set to null.', () => {
       expect(settings.youtubeCookie).toBeNull();
+    });
+
+    it('should have presenceType be set to PLAYING.', () => {
+      expect(settings.presenceType).toBe('PLAYING');
+    });
+
+    it('should have pauseOnEmpty be set to true.', () => {
+      expect(settings.pauseOnEmpty).toBe(true);
+    });
+
+    it('should have channelLeaveOnEmpty be set to false.', () => {
+      expect(settings.channelLeaveOnEmpty).toBe(false);
     });
   });
 });

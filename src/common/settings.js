@@ -8,11 +8,12 @@ const configFromFile = fs.existsSync(configFilePath) ? JSON.parse(fs.readFileSyn
 export const discordToken = process.env.DISCORD_TOKEN || configFromFile.discord_token || null;
 export const prefix = process.env.PREFIX || configFromFile.prefix || '!';
 export const ownerID = process.env.OWNER_ID || configFromFile.owner_id || null;
+export const presenceType = process.env.PRESENCE_TYPE || configFromFile.presence_type || 'PLAYING';
 
 export const soundcloudClientID = process.env.SOUNDCLOUD_CLIENT_ID || configFromFile.soundcloud_client_id || null;
 export const youtubeCookie = process.env.YOUTUBE_COOKIE || configFromFile.youtube_cookie || null;
 
-// Shuffle setting is a bit complicated with previous notation.
+// Boolean settings are a bit weird to parse with previous notation, especially if set value is falsy.
 let shuffle;
 if (process.env.hasOwnProperty('SHUFFLE')) {
   if (process.env.SHUFFLE === 'false') {
@@ -26,4 +27,30 @@ if (process.env.hasOwnProperty('SHUFFLE')) {
   shuffle = true;
 }
 
-export { shuffle };
+let pauseOnEmpty;
+if (process.env.hasOwnProperty('PAUSE_ON_EMPTY')) {
+  if (process.env.PAUSE_ON_EMPTY === 'false') {
+    pauseOnEmpty = false;
+  } else {
+    pauseOnEmpty = true;
+  }
+} else if (configFromFile.hasOwnProperty('pause_on_empty')) {
+  pauseOnEmpty = configFromFile.pause_on_empty;
+} else {
+  pauseOnEmpty = true;
+}
+
+let channelLeaveOnEmpty;
+if (process.env.hasOwnProperty('CHANNEL_LEAVE_ON_EMPTY')) {
+  if (process.env.CHANNEL_LEAVE_ON_EMPTY === 'false') {
+    channelLeaveOnEmpty = false;
+  } else {
+    channelLeaveOnEmpty = true;
+  }
+} else if (configFromFile.hasOwnProperty('channel_leave_on_empty')) {
+  channelLeaveOnEmpty = configFromFile.channel_leave_on_empty;
+} else {
+  channelLeaveOnEmpty = false;
+}
+
+export { shuffle, pauseOnEmpty, channelLeaveOnEmpty };

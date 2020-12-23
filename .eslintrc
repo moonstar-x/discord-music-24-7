@@ -1,5 +1,8 @@
 {
   "extends": [
     "greencoast/node"
-  ]
+  ],
+  "rules": {
+    "one-var": "off"
+  }
 }
