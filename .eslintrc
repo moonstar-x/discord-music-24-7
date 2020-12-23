@@ -4,5 +4,8 @@
   ],
   "rules": {
     "one-var": "off"
+  },
+  "parserOptions": {
+    "ecmaVersion": 2020
   }
 }

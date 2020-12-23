@@ -66,3 +66,6 @@ config/settings.json
 # Old files
 old/
 *.old.*
+
+# Build
+build
