@@ -11,7 +11,7 @@
     "build": "node_modules/.bin/babel src -d build",
     "start": "node ./build/app.js",
     "debug": "node ./build/app.js --debug",
-    "dev": "nodemon --exec node_modules/.bin/babel-node ./src/app.js",
+    "dev": "PREFIX=! nodemon --exec node_modules/.bin/babel-node ./src/app.js",
     "lint:errors-only": "node_modules/.bin/eslint src test --quiet",
     "lint": "node_modules/.bin/eslint src test"
   },
