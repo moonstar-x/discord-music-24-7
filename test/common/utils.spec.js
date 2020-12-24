@@ -6,7 +6,7 @@ describe('Common - Utils', () => {
     let shuffled;
 
     beforeEach(() => {
-      arr = [1, 2, 3, 4, 5];
+      arr = Array.from(Array(100).keys());
       shuffled = shuffleArray([...arr]);
     });
 
