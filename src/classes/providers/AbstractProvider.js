@@ -12,7 +12,7 @@ class AbstractProvider {
    * @param {String} source
    * @returns {Promise<ReadableStream>}
    */
-  static createStream(source) {
+  createStream(source) {
     throw new Error('Method not implemented!');
   }
 
@@ -21,7 +21,7 @@ class AbstractProvider {
    * @param {String} source
    * @returns {Promise}
    */
-  static getInfo(source) {
+  getInfo(source) {
     throw new Error('Method not implemented!');
   }
 }

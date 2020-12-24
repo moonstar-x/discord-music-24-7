@@ -5,7 +5,7 @@ import logger from '@greencoast/logger';
 import { youtubeCookie } from '../../common/settings';
 
 class YouTubeProvider extends AbstractProvider {
-  static createStream(source) {
+  createStream(source) {
     const options = {
       quality: 'highestaudio',
       highWaterMark: 1 << 25
@@ -34,7 +34,7 @@ class YouTubeProvider extends AbstractProvider {
       });
   }
 
-  static getInfo(source, options) {
+  getInfo(source, options) {
     return ytdl.getInfo(source, options);
   }
 }
