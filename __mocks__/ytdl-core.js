@@ -1,3 +1,13 @@
+/* eslint-disable no-unused-vars */
 import { Readable } from 'stream';
 
-export default jest.fn(() => new Readable());
+const infoMock = {
+  videoDetails: {
+    title: 'video title'
+  }
+};
+
+export default {
+  getInfo: jest.fn((url, options) => Promise.resolve(infoMock)),
+  downloadFromInfo: jest.fn((url, options) => new Readable())
+};

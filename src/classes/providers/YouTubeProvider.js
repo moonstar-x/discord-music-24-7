@@ -1,6 +1,7 @@
 /* eslint-disable no-bitwise */
 import AbstractProvider from './AbstractProvider';
 import ytdl from 'ytdl-core';
+import logger from '@greencoast/logger';
 import { youtubeCookie } from '../../common/settings';
 
 class YouTubeProvider extends AbstractProvider {
@@ -18,7 +19,23 @@ class YouTubeProvider extends AbstractProvider {
       };
     }
 
-    return ytdl(source, options);
+    return this.getInfo(source, options)
+      .then((info) => {
+        const stream = ytdl.downloadFromInfo(info);
+        stream.info = {
+          title: info.videoDetails.title
+        };
+
+        return stream;
+      })
+      .catch((err) => {
+        logger.error(err);
+        return null;
+      });
+  }
+
+  static getInfo(source, options) {
+    return ytdl.getInfo(source, options);
   }
 }
 
