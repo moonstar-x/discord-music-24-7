@@ -29,8 +29,8 @@ class YouTubeProvider extends AbstractProvider {
 
         return stream;
       })
-      .catch((err) => {
-        logger.error(err);
+      .catch((error) => {
+        logger.error(error);
         return null;
       });
   }
