@@ -17,7 +17,3 @@ export const MESSAGE_EMBED = {
   thumbnail: 'https://i.imgur.com/Tqnk48j.png',
   issuesURL: 'https://github.com/moonstar-x/discord-music-24-7/issues'
 };
-
-export const PROVIDERS = {
-  YOUTUBE: 'YOUTUBE'
-};
