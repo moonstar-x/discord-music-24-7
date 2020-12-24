@@ -9,6 +9,7 @@ export const discordToken = process.env.DISCORD_TOKEN || configFromFile.discord_
 export const prefix = process.env.PREFIX || configFromFile.prefix || '!';
 export const ownerID = process.env.OWNER_ID || configFromFile.owner_id || null;
 export const presenceType = process.env.PRESENCE_TYPE || configFromFile.presence_type || 'PLAYING';
+export const channelID = process.env.CHANNEL_ID || configFromFile.channel_id || null;
 
 export const soundcloudClientID = process.env.SOUNDCLOUD_CLIENT_ID || configFromFile.soundcloud_client_id || null;
 export const youtubeCookie = process.env.YOUTUBE_COOKIE || configFromFile.youtube_cookie || null;

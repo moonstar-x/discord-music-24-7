@@ -18,7 +18,8 @@ describe('Common - Settings', () => {
       youtube_cookie: 'YOUTUBE_COOKIE',
       presence_type: 'LISTENING',
       pause_on_empty: false,
-      channel_leave_on_empty: true
+      channel_leave_on_empty: true,
+      channel_id: '123'
     };
 
     beforeAll(() => {
@@ -65,6 +66,10 @@ describe('Common - Settings', () => {
     it('should have channelLeaveOnEmpty be set to what is in the config file.', () => {
       expect(settings.channelLeaveOnEmpty).toBe(mockedFile.channel_leave_on_empty);
     });
+
+    it('should have channelID be set to what is in the config file.', () => {
+      expect(settings.channelID).toBe(mockedFile.channel_id);
+    });
   });
 
   describe('With Environment Variables', () => {
@@ -77,6 +82,7 @@ describe('Common - Settings', () => {
     const PRESENCE_TYPE = 'LISTENING';
     const PAUSE_ON_EMPTY = 'false';
     const CHANNEL_LEAVE_ON_EMPTY = 'true';
+    const CHANNEL_ID = '123';
 
     beforeAll(() => {
       existsSyncMock.mockReturnValue(false);
@@ -89,7 +95,8 @@ describe('Common - Settings', () => {
         YOUTUBE_COOKIE,
         PRESENCE_TYPE,
         PAUSE_ON_EMPTY,
-        CHANNEL_LEAVE_ON_EMPTY
+        CHANNEL_LEAVE_ON_EMPTY,
+        CHANNEL_ID
       };
 
       jest.resetModules();
@@ -130,6 +137,10 @@ describe('Common - Settings', () => {
 
     it('should have channelLeaveOnEmpty be set to CHANNEL_LEAVE_ON_EMPTY.', () => {
       expect(settings.channelLeaveOnEmpty).toBe(CHANNEL_LEAVE_ON_EMPTY === 'true');
+    });
+
+    it('should have channelID be set to CHANNEL_ID.', () => {
+      expect(settings.channelID).toBe(CHANNEL_ID);
     });
   });
 
@@ -176,6 +187,10 @@ describe('Common - Settings', () => {
 
     it('should have channelLeaveOnEmpty be set to false.', () => {
       expect(settings.channelLeaveOnEmpty).toBe(false);
+    });
+
+    it('should have channelID be set to null.', () => {
+      expect(settings.channelID).toBeNull();
     });
   });
 });
