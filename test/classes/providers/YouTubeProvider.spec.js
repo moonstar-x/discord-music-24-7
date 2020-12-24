@@ -32,6 +32,7 @@ describe('Classes - Providers - YouTubeProvider', () => {
         .then((stream) => {
           expect(stream).toHaveProperty('info');
           expect(stream.info).toHaveProperty('title');
+          expect(stream.info).toHaveProperty('source', 'YT');
         });
     });
   });

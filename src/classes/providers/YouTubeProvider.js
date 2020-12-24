@@ -23,7 +23,8 @@ class YouTubeProvider extends AbstractProvider {
       .then((info) => {
         const stream = ytdl.downloadFromInfo(info);
         stream.info = {
-          title: info.videoDetails.title
+          title: info.videoDetails.title,
+          source: 'YT'
         };
 
         return stream;
