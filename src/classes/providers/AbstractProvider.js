@@ -8,16 +8,16 @@ class AbstractProvider {
   }
 
   /**
-   * Creates a Stream for the appropriate media provider. Should also emit a 'info' event for media metadata fetch.
+    Returns a Promise that resolves to a ReadableStream with the stream metadata appended to the info property.
    * @param {String} source
-   * @returns {ReadableStream}
+   * @returns {Promise<ReadableStream>}
    */
   static createStream(source) {
     throw new Error('Method not implemented!');
   }
 
   /**
-   * Handles media metadata fetching. Should return a Promise that will be emit the 'info' event for the stream on fulfillment.
+   * Handles media metadata fetching. Should return a Promise with the metadata in a normalized way.
    * @param {String} source
    * @returns {Promise}
    */
