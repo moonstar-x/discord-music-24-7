@@ -17,7 +17,7 @@ client.registry
   ])
   .registerCommandsIn(path.join(__dirname, 'commands'));
 
-if (process.argv[2] === '--debug') {
+if (client.debugEnabled) {
   client.on('debug', (info) => {
     logger.debug(info);
   });
@@ -52,6 +52,11 @@ client.on('rateLimit', (info) => {
 
 client.on('ready', () => {
   logger.info('Connected to Discord! - Ready.');
+
+  client.player.initialize()
+    .catch(() => {
+      process.exit(1);
+    });
 });
 
 client.on('warn', (info) => {
