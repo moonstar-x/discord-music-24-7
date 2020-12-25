@@ -1,6 +1,7 @@
 import { CommandoClient } from 'discord.js-commando';
 import logger from '@greencoast/logger';
 import ExtendedClient from '../../../src/classes/extensions/ExtendedClient';
+import Player from '../../../src/classes/Player';
 
 jest.mock('@greencoast/logger');
 jest.mock('discord.js-commando', () => ({
@@ -40,6 +41,10 @@ describe('Classes - Extensions - ExtendedClient', () => {
     expect(client.debugEnabled).toBe(true);
 
     process.argv = oldArgs;
+  });
+
+  it('should have property player be instance of Player.', () => {
+    expect(client.player).toBeInstanceOf(Player);
   });
 
   describe('handleCommandError()', () => {
