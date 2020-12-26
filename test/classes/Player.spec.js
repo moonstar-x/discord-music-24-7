@@ -41,6 +41,8 @@ describe('Classes - Player', () => {
     clientMock.updatePresence.mockClear();
     logger.info.mockClear();
     channelMock.join.mockClear();
+    dispatcherMock.resume.mockClear();
+    dispatcherMock.pause.mockClear();
   });
 
   it('should contain a client property.', () => {
@@ -263,16 +265,50 @@ describe('Classes - Player', () => {
       player.channel = channelMock;
     });
 
-    it('should return false if player is not paused already.', () => {
-      player.paused = false;
+    describe('Currently paused.', () => {
+      beforeEach(() => {
+        player.paused = true;
+      });
 
-      expect(player.resumeDispatcher()).toBe(false);
+      it('should return true.', () => {
+        expect(player.resumeDispatcher()).toBe(true);
+      });
+
+      it('should update the paused property.', () => {
+        player.resumeDispatcher();
+
+        expect(player.paused).toBe(false);
+      });
+
+      it('should resume the dispatcher.', () => {
+        player.resumeDispatcher();
+
+        expect(dispatcherMock.resume).toHaveBeenCalledTimes(1);
+      });
+
+      it('should update the presence.', () => {
+        player.resumeDispatcher();
+
+        expect(clientMock.updatePresence).toHaveBeenCalledTimes(1);
+        expect(clientMock.updatePresence).toHaveBeenCalledWith(`► ${currentSong.title}`);
+      });
+
+      it('should log that the music resumed.', () => {
+        player.resumeDispatcher();
+
+        expect(logger.info).toHaveBeenCalledTimes(1);
+        expect(logger.info).toHaveBeenCalledWith('Music has been resumed.');
+      });
     });
 
-    it('should return true if player was paused.', () => {
-      player.paused = true;
+    describe('Currently playing.', () => {
+      beforeEach(() => {
+        player.paused = false;
+      });
 
-      expect(player.resumeDispatcher()).toBe(true);
+      it('should return false.', () => {
+        expect(player.resumeDispatcher()).toBe(false);
+      });
     });
   });
 
@@ -283,28 +319,62 @@ describe('Classes - Player', () => {
       player.channel = channelMock;
     });
 
-    it('should return false if player is paused already.', () => {
-      player.paused = true;
+    describe('Currently paused.', () => {
+      beforeEach(() => {
+        player.paused = true;
+      });
 
-      expect(player.pauseDispatcher()).toBe(false);
+      it('should return false.', () => {
+        expect(player.pauseDispatcher()).toBe(false);
+      });
+
+      it('should return false if pauseOnEmpty is false.', () => {
+        settings.pauseOnEmpty = false;
+        expect(player.pauseDispatcher()).toBe(false);
+        settings.pauseOnEmpty = true;
+      });
     });
 
-    it('should return false if pauseOnEmpty is false.', () => {
-      settings.pauseOnEmpty = false;
+    describe('Currently playing.', () => {
+      beforeEach(() => {
+        player.paused = false;
+      });
 
-      player.paused = true;
-      expect(player.pauseDispatcher()).toBe(false);
+      it('should return true.', () => {
+        expect(player.pauseDispatcher()).toBe(true);
+      });
 
-      player.paused = false;
-      expect(player.pauseDispatcher()).toBe(false);
+      it('should return false if pauseOnEmpty is false.', () => {
+        settings.pauseOnEmpty = false;
+        expect(player.pauseDispatcher()).toBe(false);
+        settings.pauseOnEmpty = true;
+      });
 
-      settings.pauseOnEmpty = true;
-    });
+      it('should update the paused property.', () => {
+        player.pauseDispatcher();
 
-    it('should return true if player was not paused.', () => {
-      player.paused = false;
+        expect(player.paused).toBe(true);
+      });
 
-      expect(player.pauseDispatcher()).toBe(true);
+      it('should pause the dispatcher.', () => {
+        player.pauseDispatcher();
+
+        expect(dispatcherMock.pause).toHaveBeenCalledTimes(1);
+      });
+
+      it('should update the presence.', () => {
+        player.pauseDispatcher();
+
+        expect(clientMock.updatePresence).toHaveBeenCalledTimes(1);
+        expect(clientMock.updatePresence).toHaveBeenCalledWith(`❙ ❙ ${currentSong.title}`);
+      });
+
+      it('should log that the music paused.', () => {
+        player.pauseDispatcher();
+
+        expect(logger.info).toHaveBeenCalledTimes(1);
+        expect(logger.info).toHaveBeenCalledWith('Music has been paused because nobody is in my channel.');
+      });
     });
   });
 });
