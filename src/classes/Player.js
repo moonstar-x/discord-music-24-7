@@ -34,6 +34,10 @@ class Player {
         return this.updateChannel(channel);
       })
       .catch((error) => {
+        if (error instanceof VoiceChannelError) {
+          throw error;
+        }
+        
         if (error === 'DiscordAPIError: Unknown Channel') {
           throw new VoiceChannelError('The channel I tried to join does not exist. Please check the channelID set up in your bot config.');
         }
@@ -67,7 +71,7 @@ class Player {
     const url = this.queue.getNext();
     const provider = ProviderFactory.getInstance(url);
 
-    provider.createStream(url)
+    return provider.createStream(url)
       .then((stream) => {
         this.dispatcher = this.connection.play(stream);
         this.currentSong = stream.info;
@@ -130,7 +134,7 @@ class Player {
 
     this.paused = false;
     this.dispatcher.resume();
-    this.client.updatePresenceWithSong();
+    this.updatePresenceWithSong();
     logger.info(`Playing (${this.currentSong.source}): ${this.currentSong.title} for ${this.listeners} user(s) in ${this.channel.name}.`);
     return true;
   }
@@ -142,7 +146,7 @@ class Player {
 
     this.paused = true;
     this.dispatcher.pause();
-    this.client.updatePresenceWithSong();
+    this.updatePresenceWithSong();
     logger.info('Music has been paused because nobody is in my channel.');
     return true;
   }
