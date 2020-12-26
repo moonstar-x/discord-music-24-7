@@ -1,3 +1,4 @@
+/* eslint-disable max-statements */
 import logger from '@greencoast/logger';
 import path from 'path';
 import { discordToken, prefix, ownerID } from './common/settings';
@@ -17,7 +18,7 @@ client.registry
   ])
   .registerCommandsIn(path.join(__dirname, 'commands'));
 
-if (process.argv[2] === '--debug') {
+if (client.debugEnabled) {
   client.on('debug', (info) => {
     logger.debug(info);
   });
@@ -52,10 +53,50 @@ client.on('rateLimit', (info) => {
 
 client.on('ready', () => {
   logger.info('Connected to Discord! - Ready.');
+
+  client.player.initialize()
+    .catch(() => {
+      process.exit(1);
+    });
 });
 
 client.on('warn', (info) => {
   logger.warn(info);
+});
+
+client.on('voiceStateUpdate', (oldState, newState) => {
+  const oldChannel = oldState.channel ? oldState.channel.id : null;
+  const newChannel = newState.channel ? newState.channel.id : null;
+
+  if (oldChannel === newChannel) {
+    return;
+  }
+
+  const botWasInOldChannel = oldChannel === client.player.channel.id;
+  const botIsInNewChannel = newChannel === client.player.channel.id;
+
+  // Bot was moved to another channel.
+  if (botWasInOldChannel && !botIsInNewChannel && newState.id === client.player.client.user.id) {
+    client.player.updateChannel(newState.channel);
+    client.player.updateListeners();
+    client.player.updateDispatcherStatus();
+    return;
+  }
+
+  // New user has joined the channel where the bot is in.
+  if (!oldChannel && botIsInNewChannel || botIsInNewChannel) {
+    logger.info(`User ${newState.member.displayName} has joined ${client.player.channel.name}.`);
+    client.player.updateListeners();
+    client.player.updateDispatcherStatus();
+    return;
+  }
+
+  // A user has left the channel where the bot was in.
+  if (!newChannel && botWasInOldChannel || botWasInOldChannel) {
+    logger.info(`User ${oldState.member.displayName} has left ${client.player.channel.name}.`);
+    client.player.updateListeners();
+    client.player.updateDispatcherStatus();
+  }
 });
 
 client.login(discordToken);

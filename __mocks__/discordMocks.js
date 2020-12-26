@@ -12,20 +12,41 @@ export const commandGroupMock = {
   commands: [commandMock, commandMock]
 };
 
-export const clientMock = {
-  commandPrefix: '!',
-  handleCommandError: jest.fn(),
-  registry: {
-    groups: [commandGroupMock, commandGroupMock]
-  }
-};
-
 export const memberMock = {
   displayName: 'display name'
 };
 
 export const guildMock = {
   name: 'guild name'
+};
+
+export const dispatcherMock = {
+  resume: jest.fn(),
+  pause: jest.fn()
+};
+
+export const connectionMock = {
+  play: jest.fn(() => dispatcherMock)
+};
+
+export const channelMock = {
+  joinable: true,
+  name: 'channel',
+  guild: guildMock,
+  join: jest.fn(() => Promise.resolve(connectionMock)),
+  members: [memberMock, memberMock]
+};
+
+export const clientMock = {
+  commandPrefix: '!',
+  handleCommandError: jest.fn(),
+  registry: {
+    groups: [commandGroupMock, commandGroupMock]
+  },
+  channels: {
+    fetch: jest.fn(() => Promise.resolve(channelMock))
+  },
+  updatePresence: jest.fn()
 };
 
 export const messageMock = {
