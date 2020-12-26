@@ -4,7 +4,7 @@ import Queue from './Queue';
 import ProviderFactory from './providers/ProviderFactory';
 import MissingArgumentError from './errors/MissingArgumentError';
 import VoiceChannelError from './errors/VoiceChannelError';
-import { channelID } from '../common/settings';
+import { channelID, pauseOnEmpty } from '../common/settings';
 
 class Player {
   constructor(client) {
@@ -75,6 +75,7 @@ class Player {
       .then((stream) => {
         this.dispatcher = this.connection.play(stream);
         this.currentSong = stream.info;
+        logger.info(`Playing (${this.currentSong.source}): ${this.currentSong.title} for ${this.listeners} user(s) in ${this.channel.name}.`);
 
         if (!this.updateDispatcherStatus()) {
           this.updatePresenceWithSong();
@@ -135,12 +136,12 @@ class Player {
     this.paused = false;
     this.dispatcher.resume();
     this.updatePresenceWithSong();
-    logger.info(`Playing (${this.currentSong.source}): ${this.currentSong.title} for ${this.listeners} user(s) in ${this.channel.name}.`);
+    logger.info('Music has been resumed.');
     return true;
   }
 
   pauseDispatcher() {
-    if (this.paused) {
+    if (this.paused || !pauseOnEmpty) {
       return false;
     }
 

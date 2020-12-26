@@ -289,6 +289,18 @@ describe('Classes - Player', () => {
       expect(player.pauseDispatcher()).toBe(false);
     });
 
+    it('should return false if pauseOnEmpty is false.', () => {
+      settings.pauseOnEmpty = false;
+
+      player.paused = true;
+      expect(player.pauseDispatcher()).toBe(false);
+
+      player.paused = false;
+      expect(player.pauseDispatcher()).toBe(false);
+
+      settings.pauseOnEmpty = true;
+    });
+
     it('should return true if player was not paused.', () => {
       player.paused = false;
 

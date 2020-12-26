@@ -41,6 +41,8 @@ if (process.env.hasOwnProperty('PAUSE_ON_EMPTY')) {
   pauseOnEmpty = true;
 }
 
+// Still need to see how to implement this one. I don't even think it's necessary to have this.
+// Will leave anyway since it is not used anywhere.
 let channelLeaveOnEmpty;
 if (process.env.hasOwnProperty('CHANNEL_LEAVE_ON_EMPTY')) {
   if (process.env.CHANNEL_LEAVE_ON_EMPTY === 'false') {
