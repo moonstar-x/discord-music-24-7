@@ -73,6 +73,11 @@ class Player {
 
     return provider.createStream(url)
       .then((stream) => {
+        // Something happened while creating the stream.
+        if (!stream) {
+          this.play();
+        }
+
         this.dispatcher = this.connection.play(stream);
         this.currentSong = stream.info;
         logger.info(`Playing (${this.currentSong.source}): ${this.currentSong.title} for ${this.listeners} user(s) in ${this.channel.name}.`);
