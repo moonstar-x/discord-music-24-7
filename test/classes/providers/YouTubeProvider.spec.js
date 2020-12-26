@@ -2,6 +2,8 @@ import YouTubeProvider from '../../../src/classes/providers/YouTubeProvider';
 import AbstractProvider from '../../../src/classes/providers/AbstractProvider';
 import { Readable } from 'stream';
 
+jest.mock('ytdl-core');
+
 const url = 'https://www.youtube.com/watch?v=PYGODWJgR-c';
 
 describe('Classes - Providers - YouTubeProvider', () => {
