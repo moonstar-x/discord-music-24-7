@@ -1,7 +1,7 @@
 /* eslint-disable max-statements */
 import logger from '@greencoast/logger';
 import path from 'path';
-import { discordToken, prefix, ownerID, pauseOnEmpty } from './common/settings';
+import { discordToken, prefix, ownerID } from './common/settings';
 import ExtendedClient from './classes/extensions/ExtendedClient';
 
 const client = new ExtendedClient({
