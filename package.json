@@ -33,6 +33,7 @@
     "@greencoast/logger": "^1.0.1",
     "discord.js": "^12.5.1",
     "discord.js-commando": "github:discordjs/Commando",
+    "music-metadata": "^7.5.2",
     "soundcloud-downloader": "^0.2.2",
     "ytdl-core": "^4.2.1"
   },

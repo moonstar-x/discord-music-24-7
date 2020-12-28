@@ -69,3 +69,7 @@ old/
 
 # Build
 build
+
+# Audio Files
+*.mp3
+*.m4a
