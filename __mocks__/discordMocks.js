@@ -1,3 +1,5 @@
+import EventEmitter from 'events';
+
 export const userMock = {
   username: 'username'
 };
@@ -46,7 +48,8 @@ export const clientMock = {
   channels: {
     fetch: jest.fn(() => Promise.resolve(channelMock))
   },
-  updatePresence: jest.fn()
+  updatePresence: jest.fn(),
+  player: new EventEmitter()
 };
 
 export const messageMock = {
@@ -55,5 +58,6 @@ export const messageMock = {
   content: 'message',
   member: memberMock,
   author: userMock,
-  embed: jest.fn()
+  embed: jest.fn(),
+  say: jest.fn()
 };
