@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 /* eslint-disable max-statements */
 import fs from 'fs';
 import logger from '@greencoast/logger';
@@ -14,6 +15,10 @@ jest.mock('../../src/classes/providers/ProviderFactory', () => ({
   getInstance: jest.fn(() => ({ createStream: jest.fn(() => Promise.resolve({ info: 'song' })) }))
 }));
 jest.mock('@greencoast/logger');
+
+const dateNowSpy = jest.spyOn(Date, 'now');
+const timestampMock = 1609184342966;
+dateNowSpy.mockReturnValue(timestampMock);
 
 const mockedQueue = [
   'this is no url',
@@ -80,6 +85,10 @@ describe('Classes - Player', () => {
 
   it('should contain a listeners property.', () => {
     expect(player).toHaveProperty('listeners');
+  });
+
+  it('should contain a lastPauseTimestamp property.', () => {
+    expect(player).toHaveProperty('lastPauseTimestamp');
   });
 
   describe('initialize()', () => {
@@ -271,8 +280,12 @@ describe('Classes - Player', () => {
     });
 
     describe('Currently paused.', () => {
+      let isStreamExpiredSpy;
+
       beforeEach(() => {
         player.paused = true;
+        isStreamExpiredSpy = jest.spyOn(player, 'isStreamExpired');
+        isStreamExpiredSpy.mockReturnValue(false);
       });
 
       it('should return true.', () => {
@@ -303,6 +316,22 @@ describe('Classes - Player', () => {
 
         expect(logger.info).toHaveBeenCalledTimes(1);
         expect(logger.info).toHaveBeenCalledWith('Music has been resumed.');
+      });
+
+      it('should emit the skip event if the stream is expired.', () => {
+        isStreamExpiredSpy.mockReturnValueOnce(true);
+        const emitSpy = jest.spyOn(player, 'emit');
+        player.resumeDispatcher();
+
+        expect(emitSpy).toHaveBeenCalledTimes(1);
+        expect(emitSpy).toHaveBeenCalledWith('skip', 'Stream has expired, skipping...');
+      });
+
+      it('should update the paused property if the stream is expired.', () => {
+        isStreamExpiredSpy.mockReturnValueOnce(true);
+        player.resumeDispatcher();
+
+        expect(player.paused).toBe(false);
       });
     });
 
@@ -361,6 +390,12 @@ describe('Classes - Player', () => {
         expect(player.paused).toBe(true);
       });
 
+      it('should update the lastPauseTimestamp property.', () => {
+        player.pauseDispatcher();
+
+        expect(player.lastPauseTimestamp).toBe(timestampMock);
+      });
+
       it('should pause the dispatcher.', () => {
         player.pauseDispatcher();
 
@@ -380,6 +415,41 @@ describe('Classes - Player', () => {
         expect(logger.info).toHaveBeenCalledTimes(1);
         expect(logger.info).toHaveBeenCalledWith('Music has been paused because nobody is in my channel.');
       });
+    });
+  });
+
+  describe('isStreamExpired()', () => {
+    beforeEach(() => {
+      player.dispatcher = dispatcherMock;
+      player.currentSong = currentSong;
+      player.channel = channelMock;
+      player.paused = false;
+    });
+
+    it('should return false if no lastPauseTimestamp has been set previously.', () => {
+      expect(player.isStreamExpired()).toBe(false);
+    });
+
+    it('should return false if the lastPauseTimestamp is still in the max age time frame.', () => {
+      player.pauseDispatcher();
+
+      dateNowSpy.mockReturnValueOnce(timestampMock + 5000);
+
+      expect(player.isStreamExpired()).toBe(false);
+    });
+
+    it('should return true if the lastPauseTimestamp is out of the max age time frame.', () => {
+      player.pauseDispatcher();
+
+      dateNowSpy.mockReturnValueOnce(timestampMock + Player.STREAM_MAX_AGE + 5000);
+
+      expect(player.isStreamExpired()).toBe(true);
+    });
+  });
+
+  describe('static STREAM_MAX_AGE', () => {
+    it('should be a number.', () => {
+      expect(Player.STREAM_MAX_AGE).not.toBeNaN();
     });
   });
 });

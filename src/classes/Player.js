@@ -23,6 +23,7 @@ class Player extends EventEmitter {
     this.paused = false;
     this.currentSong = null;
     this.listeners = 0;
+    this.lastPauseTimestamp = null;
   }
 
   initialize() {
@@ -93,9 +94,9 @@ class Player extends EventEmitter {
         }
 
         // Skip has been emitted.
-        this.once('skip', () => {
+        this.once('skip', (reason) => {
           stream.destroy();
-          logger.info(`(${this.currentSong.source}): ${this.currentSong.title} has been skipped.`);
+          logger.info(reason || `(${this.currentSong.source}): ${this.currentSong.title} has been skipped.`);
           this.play();
         });
 
@@ -156,6 +157,12 @@ class Player extends EventEmitter {
       return false;
     }
 
+    if (this.isStreamExpired()) {
+      this.emit('skip', 'Stream has expired, skipping...');
+      this.paused = false;
+      return;
+    }
+
     this.paused = false;
     this.dispatcher.resume();
     this.updatePresenceWithSong();
@@ -168,12 +175,23 @@ class Player extends EventEmitter {
       return false;
     }
 
+    this.lastPauseTimestamp = Date.now();
     this.paused = true;
     this.dispatcher.pause();
     this.updatePresenceWithSong();
     logger.info('Music has been paused because nobody is in my channel.');
     return true;
   }
+
+  isStreamExpired() {
+    if (!this.lastPauseTimestamp) {
+      return false;
+    }
+
+    return Date.now() - this.lastPauseTimestamp > Player.STREAM_MAX_AGE;
+  }
 }
+
+Player.STREAM_MAX_AGE = 7200000; // TWO HOURS
 
 export default Player;
