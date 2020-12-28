@@ -11,16 +11,23 @@ const mockedQueue = [
   'https://youtu.be/PYGODWJgR-c'
 ];
 
+const mockedMusicDirectory = [
+  'song1.mp3',
+  'song2.m4a',
+  'not a song.txt'
+];
+
 describe('Classes - Queue', () => {
   let queue;
 
   beforeAll(() => {
     fs.readFileSync.mockReturnValue(mockedQueue.join('\n'));
+    fs.readdirSync.mockReturnValue(mockedMusicDirectory);
   });
 
   beforeEach(() => {
     fs.readFileSync.mockClear();
-    queue = new Queue('filename');
+    queue = new Queue('filename', 'musicDir');
   });
 
   it('should throw MissingArgumentError if no queueFilename is provided.', () => {
@@ -35,6 +42,14 @@ describe('Classes - Queue', () => {
 
   it('should have a queue property.', () => {
     expect(queue.queue).toBeInstanceOf(Array);
+  });
+
+  it('should contain a queue with the correct items inside.', () => {
+    expect(queue.queue).toHaveLength(4);
+    expect(queue.queue).toContain('https://www.youtube.com/watch?v=PYGODWJgR-c');
+    expect(queue.queue).toContain('https://youtu.be/PYGODWJgR-c');
+    expect(queue.queue).toContain('local:musicDir/song1.mp3');
+    expect(queue.queue).toContain('local:musicDir/song2.m4a');
   });
 
   describe('getNext()', () => {
