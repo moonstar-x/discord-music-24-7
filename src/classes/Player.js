@@ -1,4 +1,5 @@
 import logger from '@greencoast/logger';
+import EventEmitter from 'events';
 import Queue from './Queue';
 import ProviderFactory from './providers/ProviderFactory';
 import MissingArgumentError from './errors/MissingArgumentError';
@@ -6,8 +7,10 @@ import VoiceChannelError from './errors/VoiceChannelError';
 import { channelID, pauseOnEmpty } from '../common/settings';
 import { QUEUE_PATH, LOCAL_MUSIC_PATH, createLocalMusicDirectoryIfNoExists, createQueueFileIfNoExists, createDataDirectoryIfNoExists } from '../common/paths';
 
-class Player {
+class Player extends EventEmitter {
   constructor(client) {
+    super();
+
     createDataDirectoryIfNoExists();
     createQueueFileIfNoExists();
     createLocalMusicDirectoryIfNoExists();
@@ -84,11 +87,22 @@ class Player {
 
         this.dispatcher = this.connection.play(stream);
         this.currentSong = stream.info;
-        logger.info(`Playing (${this.currentSong.source}): ${this.currentSong.title} for ${this.listeners} user(s) in ${this.channel.name}.`);
 
         if (!this.updateDispatcherStatus()) {
           this.updatePresenceWithSong();
         }
+
+        // Skip has been emitted.
+        this.once('skip', () => {
+          stream.destroy();
+          logger.info(`(${this.currentSong.source}): ${this.currentSong.title} has been skipped.`);
+          this.play();
+        });
+
+        // Song started
+        this.dispatcher.on('start', () => {
+          logger.info(`Playing (${this.currentSong.source}): ${this.currentSong.title} for ${this.listeners} user(s) in ${this.channel.name}.`);
+        });
 
         // Song ended.
         this.dispatcher.on('speaking', (speaking) => {

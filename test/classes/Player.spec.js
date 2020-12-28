@@ -1,6 +1,7 @@
 /* eslint-disable max-statements */
 import fs from 'fs';
 import logger from '@greencoast/logger';
+import EventEmitter from 'events';
 import Player from '../../src/classes/Player';
 import { clientMock, channelMock, connectionMock, dispatcherMock } from '../../__mocks__/discordMocks';
 import Queue from '../../src/classes/Queue';
@@ -43,6 +44,10 @@ describe('Classes - Player', () => {
     channelMock.join.mockClear();
     dispatcherMock.resume.mockClear();
     dispatcherMock.pause.mockClear();
+  });
+
+  it('should be instance of EventEmitter.', () => {
+    expect(player).toBeInstanceOf(EventEmitter);
   });
 
   it('should contain a client property.', () => {
