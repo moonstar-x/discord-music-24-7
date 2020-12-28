@@ -1,0 +1,9 @@
+node_modules
+npm-debug.log
+
+config/settings.json
+.github
+.git
+data/local-music/
+test
+build
