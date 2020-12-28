@@ -4,10 +4,11 @@ import ProviderFactory from './providers/ProviderFactory';
 import MissingArgumentError from './errors/MissingArgumentError';
 import VoiceChannelError from './errors/VoiceChannelError';
 import { channelID, pauseOnEmpty } from '../common/settings';
-import { QUEUE_PATH, LOCAL_MUSIC_PATH, createLocalMusicDirectoryIfNoExists, createQueueFileIfNoExists } from '../common/paths';
+import { QUEUE_PATH, LOCAL_MUSIC_PATH, createLocalMusicDirectoryIfNoExists, createQueueFileIfNoExists, createDataDirectoryIfNoExists } from '../common/paths';
 
 class Player {
   constructor(client) {
+    createDataDirectoryIfNoExists();
     createQueueFileIfNoExists();
     createLocalMusicDirectoryIfNoExists();
 
