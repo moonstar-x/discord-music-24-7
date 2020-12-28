@@ -1,0 +1,11 @@
+{
+  "extends": [
+    "greencoast/node"
+  ],
+  "rules": {
+    "one-var": "off"
+  },
+  "parserOptions": {
+    "ecmaVersion": 2020
+  }
+}

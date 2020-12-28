@@ -64,5 +64,12 @@ typings/
 config/settings.json
 
 # Old files
-
+old/
 *.old.*
+
+# Build
+build
+
+# Audio Files
+*.mp3
+*.m4a

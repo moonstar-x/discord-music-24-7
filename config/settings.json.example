@@ -1,7 +1,12 @@
 {
   "discord_token": "",
-  "soundcloud_client_id": "",
-  "youtube_cookie": "",
+  "prefix": "!",
+  "owner_id": "",
+  "presence_type": "PLAYING",
   "channel_id": "",
-  "shuffle": true
+  "shuffle": true,
+  "pause_on_empty": true,
+  "channel_leave_on_empty": false,
+  "soundcloud_client_id": "",
+  "youtube_cookie": ""
 }
