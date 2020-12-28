@@ -1,15 +1,18 @@
-import path from 'path';
 import logger from '@greencoast/logger';
 import Queue from './Queue';
 import ProviderFactory from './providers/ProviderFactory';
 import MissingArgumentError from './errors/MissingArgumentError';
 import VoiceChannelError from './errors/VoiceChannelError';
 import { channelID, pauseOnEmpty } from '../common/settings';
+import { QUEUE_PATH, LOCAL_MUSIC_PATH, createLocalMusicDirectoryIfNoExists, createQueueFileIfNoExists } from '../common/paths';
 
 class Player {
   constructor(client) {
+    createQueueFileIfNoExists();
+    createLocalMusicDirectoryIfNoExists();
+
     this.client = client;
-    this.queue = new Queue(path.join(__dirname, '../../data/queue.txt'));
+    this.queue = new Queue(QUEUE_PATH, LOCAL_MUSIC_PATH);
     this.channel = null;
     this.connection = null;
     this.dispatcher = null;
