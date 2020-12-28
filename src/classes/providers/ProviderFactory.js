@@ -1,9 +1,11 @@
 import YouTubeProvider from '../providers/YouTubeProvider';
 import SoundCloudProvider from '../providers/SoundCloudProvider';
+import LocalProvider from '../providers/LocalProvider';
 import URLError from '../errors/URLError';
 
 const youtubeProvider = new YouTubeProvider();
 const soundCloudProvider = new SoundCloudProvider();
+const localProvider = new LocalProvider();
 
 class ProviderFactory {
   static getInstance(url) {
@@ -13,6 +15,10 @@ class ProviderFactory {
 
     if (url.includes('soundcloud.com')) {
       return soundCloudProvider;
+    }
+
+    if (url.startsWith('local:')) {
+      return localProvider;
     }
     
     throw new URLError(`Invalid URL in queue: ${url}`);
