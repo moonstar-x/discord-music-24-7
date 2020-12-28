@@ -1,4 +1,4 @@
-import { QUEUE_PATH, LOCAL_MUSIC_PATH, createLocalMusicDirectoryIfNoExists, createQueueFileIfNoExists } from '../../src/common/paths';
+import { DATA_PATH, QUEUE_PATH, LOCAL_MUSIC_PATH, createLocalMusicDirectoryIfNoExists, createQueueFileIfNoExists, createDataDirectoryIfNoExists } from '../../src/common/paths';
 import logger from '@greencoast/logger';
 import fs from 'fs';
 
@@ -12,6 +12,12 @@ describe('Common - Paths', () => {
     fs.existsSync.mockClear();
     fs.writeFileSync.mockClear();
     fs.mkdirSync.mockClear();
+  });
+
+  describe('DATA_PATH', () => {
+    it('should be a string.', () => {
+      expect(typeof DATA_PATH).toBe('string');
+    });
   });
 
   describe('QUEUE_PATH', () => {
@@ -78,13 +84,42 @@ describe('Common - Paths', () => {
       expect(logger.warn).toHaveBeenCalledWith('Local music directory not found! Creating...');
     });
 
-    it('should create queue file if it does not exist.', () => {
+    it('should create local music folder if it does not exist.', () => {
       fs.existsSync.mockReturnValueOnce(false);
 
       createLocalMusicDirectoryIfNoExists();
 
       expect(fs.mkdirSync).toHaveBeenCalledTimes(1);
       expect(fs.mkdirSync).toHaveBeenCalledWith(LOCAL_MUSIC_PATH);
+    });
+  });
+
+  describe('createDataDirectoryIfNoExists()', () => {
+    it('should not do anything if data folder exists.', () => {
+      fs.existsSync.mockReturnValueOnce(true);
+
+      createDataDirectoryIfNoExists();
+
+      expect(logger.warn).not.toHaveBeenCalled();
+      expect(fs.mkdirSync).not.toHaveBeenCalled();
+    });
+
+    it('should log that the folder was not found if it does not exist.', () => {
+      fs.existsSync.mockReturnValueOnce(false);
+
+      createDataDirectoryIfNoExists();
+
+      expect(logger.warn).toHaveBeenCalledTimes(1);
+      expect(logger.warn).toHaveBeenCalledWith('Data directory not found! Creating...');
+    });
+
+    it('should create data folder if it does not exist.', () => {
+      fs.existsSync.mockReturnValueOnce(false);
+
+      createDataDirectoryIfNoExists();
+
+      expect(fs.mkdirSync).toHaveBeenCalledTimes(1);
+      expect(fs.mkdirSync).toHaveBeenCalledWith(DATA_PATH);
     });
   });
 });
