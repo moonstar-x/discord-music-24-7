@@ -1,7 +1,9 @@
-![ci-build-status](https://img.shields.io/github/workflow/status/moonstar-x/discord-music-24-7/CI?logo=github)
-![open-issues-count](https://img.shields.io/github/issues-raw/moonstar-x/discord-music-24-7?logo=github)
-![docker-image-size](https://img.shields.io/docker/image-size/moonstarx/discord-music-24-7?logo=docker)
-![docker-pulls](https://img.shields.io/docker/pulls/moonstarx/discord-music-24-7?logo=docker)
+[![discord](https://img.shields.io/discord/730998659008823296.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/mhj3Zsv)
+[![trello](https://img.shields.io/badge/Trello-discord--music--24--7-red)](https://trello.com/b/vS6d2lej/discord-music-24-7)
+[![ci-build-status](https://img.shields.io/github/workflow/status/moonstar-x/discord-music-24-7/CI?logo=github)](https://github.com/moonstar-x/discord-music-24-7)
+[![open-issues-count](https://img.shields.io/github/issues-raw/moonstar-x/discord-music-24-7?logo=github)](https://github.com/moonstar-x/discord-music-24-7)
+[![docker-image-size](https://img.shields.io/docker/image-size/moonstarx/discord-music-24-7?logo=docker)](https://hub.docker.com/repository/docker/moonstarx/discord-music-24-7)
+[![docker-pulls](https://img.shields.io/docker/pulls/moonstarx/discord-music-24-7?logo=docker)](https://hub.docker.com/repository/docker/moonstarx/discord-music-24-7)
 
 # discord-music-24-7
 
