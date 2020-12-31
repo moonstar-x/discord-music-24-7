@@ -8,7 +8,7 @@ class ExtendedClient extends CommandoClient {
   constructor(options) {
     super(options);
 
-    this.debugEnabled = process.argv[2] === '--debug';
+    this.debugEnabled = process.argv.includes('--debug');
     this.player = new Player(this);
   }
 

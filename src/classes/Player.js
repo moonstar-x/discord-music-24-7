@@ -24,6 +24,12 @@ class Player extends EventEmitter {
     this.currentSong = null;
     this.listeners = 0;
     this.lastPauseTimestamp = null;
+
+    if (client.debugEnabled) {
+      this.on('removeListener', (event) => {
+        logger.debug(`The event ${event} has been removed.`);
+      });
+    }
   }
 
   initialize() {
@@ -92,6 +98,8 @@ class Player extends EventEmitter {
         if (!this.updateDispatcherStatus()) {
           this.updatePresenceWithSong();
         }
+
+        this.removeAllListeners('skip');
 
         // Skip has been emitted.
         this.once('skip', (reason) => {
