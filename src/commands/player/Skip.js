@@ -6,7 +6,7 @@ class SkipCommand extends ExtendedCommand {
       name: 'skip',
       emoji: ':track_next:',
       memberName: 'skip',
-      group: 'misc',
+      group: 'player',
       description: 'Skip the current song.',
       examples: [`${client.commandPrefix}skip`]
     });
