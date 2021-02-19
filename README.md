@@ -37,12 +37,6 @@ git clone https://github.com/moonstar-x/discord-music-24-7.git
 Once cloned, proceed to install the dependencies:
 
 ```text
-npm ci --only=prod
-```
-
-If you prefer to install everything including the devDependencies, you may run:
-
-```text
 npm install
 ```
 
