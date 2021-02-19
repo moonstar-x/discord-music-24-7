@@ -132,6 +132,10 @@ Inside [Configuration](#configuration) you'll find a parameter called `youtube_c
 3. Look for a request named `www.youtube.com` and check it's headers. Under `Response Headers` you will find the header `set-cookie`, this will contain a directive called `expires`, keep this date in mind because your cookie will be invalidated after this date and you may need to update the settings file manually prior to this date. (Currently looking for a way to avoid this.)
 4. Inside the same request, look for the `Request Headers` and copy the content of the `cookie` header. This is the cookie that you'll need to paste inside the `settings.json` file or set as your YOUTUBE_COOKIE environment variable.
 
+## Repl.it Support
+
+Unfortunately, Repl.it [does not support ffmpeg anymore](https://repl.it/talk/ask/Installing-FFmpeg/28721) which means that this bot will not work on this.
+
 ## Docker Support
 
 You can use the bot through Docker.
