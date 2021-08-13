@@ -28,14 +28,6 @@
     "url": "https://github.com/moonstar-x/discord-music-24-7/issues"
   },
   "homepage": "https://github.com/moonstar-x/discord-music-24-7#readme",
-  "eslintConfig": {
-    "extends": [
-      "greencoast/node"
-    ],
-    "rules": {
-      "camelcase": "off"
-    }
-  },
   "dependencies": {
     "@discordjs/opus": "^0.5.3",
     "@greencoast/discord.js-extended": "^1.2.0",
