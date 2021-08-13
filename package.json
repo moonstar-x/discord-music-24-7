@@ -2,18 +2,17 @@
   "name": "discord-music-24-7",
   "version": "3.0.0",
   "description": "A 24/7 music bot for Discord.",
-  "main": "src/app.js",
+  "main": "./src/app.js",
   "scripts": {
-    "test": "node_modules/.bin/jest --watchAll --silent",
-    "test:showlogs": "node_modules/.bin/jest --watchAll",
-    "test:once": "node_modules/.bin/jest --silent",
-    "test:once-showlogs": "node_modules/.bin/jest",
-    "build": "node_modules/.bin/babel src -d build",
-    "start": "node ./build/app.js",
-    "debug": "node ./build/app.js --debug",
-    "dev": "PREFIX=! nodemon --exec node_modules/.bin/babel-node ./src/app.js",
-    "lint:errors-only": "node_modules/.bin/eslint src test --quiet",
-    "lint": "node_modules/.bin/eslint src test"
+    "test": "jest --watchAll --silent",
+    "test:showlogs": "jest --watchAll",
+    "test:once": "jest --silent",
+    "test:once-showlogs": "jest",
+    "start": "node ./src/app.js",
+    "debug": "node ./src/app.js --debug",
+    "dev": "nodemon --exec ./src/app.js",
+    "lint:errors-only": "eslint src test --quiet",
+    "lint": "eslint src test"
   },
   "engines": {
     "node": ">=12.0.0"
