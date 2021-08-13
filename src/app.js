@@ -4,6 +4,7 @@ const logger = require('@greencoast/logger');
 const { ExtendedClient, ConfigProvider } = require('@greencoast/discord.js-extended');
 const { ACTIVITY_TYPE } = require('./constants');
 const Player = require('./classes/Player');
+const VoiceStateUpdater = require('./classes/VoiceStateUpdater');
 
 const config = new ConfigProvider({
   env: process.env,
@@ -46,6 +47,7 @@ const client = new ExtendedClient({
 });
 
 client.player = new Player(client);
+client.voiceStateUpdater = new VoiceStateUpdater(client);
 
 client
   .registerDefaultEvents()
@@ -83,40 +85,9 @@ client.on('ready', async() => {
   }
 });
 
-// TODO: Delegate this logic to a separate class.
+
 client.on('voiceStateUpdate', (oldState, newState) => {
-  const oldChannel = oldState.channel ? oldState.channel.id : null;
-  const newChannel = newState.channel ? newState.channel.id : null;
-
-  if (oldChannel === newChannel) {
-    return;
-  }
-
-  const botWasInOldChannel = oldChannel === client.player.channel.id;
-  const botIsInNewChannel = newChannel === client.player.channel.id;
-
-  // Bot was moved to another channel.
-  if (botWasInOldChannel && !botIsInNewChannel && newState.id === client.player.client.user.id) {
-    client.player.updateChannel(newState.channel);
-    client.player.updateListeners();
-    client.player.updateDispatcherStatus();
-    return;
-  }
-
-  // New user has joined the channel where the bot is in.
-  if (!oldChannel && botIsInNewChannel || botIsInNewChannel) {
-    logger.info(`User ${newState.member.displayName} has joined ${client.player.channel.name}.`);
-    client.player.updateListeners();
-    client.player.updateDispatcherStatus();
-    return;
-  }
-
-  // A user has left the channel where the bot was in.
-  if (!newChannel && botWasInOldChannel || botWasInOldChannel) {
-    logger.info(`User ${oldState.member.displayName} has left ${client.player.channel.name}.`);
-    client.player.updateListeners();
-    client.player.updateDispatcherStatus();
-  }
+  return client.voiceStateUpdater.handleUpdate(oldState, newState);
 });
 
 client.login(config.get('TOKEN'));
