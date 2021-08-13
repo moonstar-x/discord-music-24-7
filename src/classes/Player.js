@@ -1,11 +1,11 @@
-import logger from '@greencoast/logger';
-import EventEmitter from 'events';
-import Queue from './Queue';
-import ProviderFactory from './providers/ProviderFactory';
-import MissingArgumentError from './errors/MissingArgumentError';
-import VoiceChannelError from './errors/VoiceChannelError';
-import { channelID, pauseOnEmpty } from '../common/settings';
-import { QUEUE_PATH, LOCAL_MUSIC_PATH, createLocalMusicDirectoryIfNoExists, createQueueFileIfNoExists, createDataDirectoryIfNoExists } from '../common/paths';
+const logger = require('@greencoast/logger');
+const { EventEmitter } = require('events');
+const Queue = require('./Queue');
+const ProviderFactory = require('./providers/ProviderFactory');
+const MissingArgumentError = require('./errors/MissingArgumentError');
+const VoiceChannelError = require('./errors/VoiceChannelError');
+const { channelID, pauseOnEmpty } = require('../common/settings');
+const { QUEUE_PATH, LOCAL_MUSIC_PATH, createLocalMusicDirectoryIfNoExists, createQueueFileIfNoExists, createDataDirectoryIfNoExists } = require('../common/paths');
 
 class Player extends EventEmitter {
   constructor(client) {
@@ -202,4 +202,4 @@ class Player extends EventEmitter {
 
 Player.STREAM_MAX_AGE = 7200000; // TWO HOURS
 
-export default Player;
+module.exports = Player;

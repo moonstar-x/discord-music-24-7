@@ -1,9 +1,9 @@
-import logger from '@greencoast/logger';
-import Discord from 'discord.js';
-import HelpCommand from '../../../src/commands/misc/Help';
-import ExtendedCommand from '../../../src/classes/extensions/ExtendedCommand';
-import { clientMock, messageMock } from '../../../__mocks__/discordMocks';
-import { MESSAGE_EMBED } from '../../../src/common/constants';
+const logger = require('@greencoast/logger');
+const Discord = require('discord.js');
+const HelpCommand = require('../../../src/commands/misc/Help');
+const ExtendedCommand = require('../../../src/classes/extensions/ExtendedCommand');
+const { clientMock, messageMock } = require('../../../__mocks__/discordMocks');
+const { MESSAGE_EMBED } = require('../../../src/common/constants');
 
 let command;
 

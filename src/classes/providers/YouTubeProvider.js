@@ -1,8 +1,8 @@
 /* eslint-disable no-bitwise */
-import AbstractProvider from './AbstractProvider';
-import ytdl from 'ytdl-core';
-import logger from '@greencoast/logger';
-import { youtubeCookie } from '../../common/settings';
+const AbstractProvider = require('./AbstractProvider');
+const ytdl = require('ytdl-core');
+const logger = require('@greencoast/logger');
+const { youtubeCookie } = require('../../common/settings');
 
 class YouTubeProvider extends AbstractProvider {
   createStream(source) {
@@ -40,4 +40,4 @@ class YouTubeProvider extends AbstractProvider {
   }
 }
 
-export default YouTubeProvider;
+module.exports = YouTubeProvider;

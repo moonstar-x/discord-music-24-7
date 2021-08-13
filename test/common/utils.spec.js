@@ -1,4 +1,4 @@
-import { shuffleArray } from '../../src/common/utils';
+const { shuffleArray } = require('../../src/common/utils');
 
 describe('Common - Utils', () => {
   describe('shuffleArray()', () => {

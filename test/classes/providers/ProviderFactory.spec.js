@@ -1,8 +1,8 @@
-import ProviderFactory from '../../../src/classes/providers/ProviderFactory';
-import URLError from '../../../src/classes/errors/URLError';
-import YouTubeProvider from '../../../src/classes/providers/YouTubeProvider';
-import SoundCloudProvider from '../../../src/classes/providers/SoundCloudProvider';
-import LocalProvider from '../../../src/classes/providers/LocalProvider';
+const ProviderFactory = require('../../../src/classes/providers/ProviderFactory');
+const URLError = require('../../../src/classes/errors/URLError');
+const YouTubeProvider = require('../../../src/classes/providers/YouTubeProvider');
+const SoundCloudProvider = require('../../../src/classes/providers/SoundCloudProvider');
+const LocalProvider = require('../../../src/classes/providers/LocalProvider');
 
 describe('Classes - Providers - ProviderFactory', () => {
   describe('static getInstance()', () => {

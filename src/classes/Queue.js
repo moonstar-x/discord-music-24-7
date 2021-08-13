@@ -1,9 +1,9 @@
-import fs from 'fs';
-import path from 'path';
-import { shuffle } from '../common/settings';
-import { shuffleArray } from '../common/utils';
-import MissingArgumentError from './errors/MissingArgumentError';
-import LocalProvider from '../classes/providers/LocalProvider';
+const fs = require('fs');
+const path = require('path');
+const { shuffle } = require('../common/settings');
+const { shuffleArray } = require('../common/utils');
+const MissingArgumentError = require('./errors/MissingArgumentError');
+const LocalProvider = require('../classes/providers/LocalProvider');
 
 class Queue {
   constructor(queueFilename, localMusicDirectory) {
@@ -42,4 +42,4 @@ class Queue {
   }
 }
 
-export default Queue;
+module.exports = Queue;

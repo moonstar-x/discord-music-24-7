@@ -1,9 +1,9 @@
-import LocalProvider from '../../../src/classes/providers/LocalProvider';
-import AbstractProvider from '../../../src/classes/providers/AbstractProvider';
-import fs from 'fs';
-import logger from '@greencoast/logger';
-import * as mm from 'music-metadata';
-import { Readable } from 'stream';
+const LocalProvider = require('../../../src/classes/providers/LocalProvider');
+const AbstractProvider = require('../../../src/classes/providers/AbstractProvider');
+const fs = require('fs');
+const logger = require('@greencoast/logger');
+const mm = require('music-metadata');
+const { Readable } = require('stream');
 
 const infoMock = {
   common: {

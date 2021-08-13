@@ -1,14 +1,14 @@
 /* eslint-disable max-lines */
 /* eslint-disable max-statements */
-import fs from 'fs';
-import logger from '@greencoast/logger';
-import EventEmitter from 'events';
-import Player from '../../src/classes/Player';
-import { clientMock, channelMock, connectionMock, dispatcherMock } from '../../__mocks__/discordMocks';
-import Queue from '../../src/classes/Queue';
-import MissingArgumentError from '../../src/classes/errors/MissingArgumentError';
-import VoiceChannelError from '../../src/classes/errors/VoiceChannelError';
-import * as settings from '../../src/common/settings';
+const fs = require('fs');
+const logger = require('@greencoast/logger');
+const { EventEmitter } = require('events');
+const Player = require('../../src/classes/Player');
+const { clientMock, channelMock, connectionMock, dispatcherMock } = require('../../__mocks__/discordMocks');
+const Queue = require('../../src/classes/Queue');
+const MissingArgumentError = require('../../src/classes/errors/MissingArgumentError');
+const VoiceChannelError = require('../../src/classes/errors/VoiceChannelError');
+const settings = require('../../src/common/settings');
 
 jest.mock('fs');
 jest.mock('../../src/classes/providers/ProviderFactory', () => ({

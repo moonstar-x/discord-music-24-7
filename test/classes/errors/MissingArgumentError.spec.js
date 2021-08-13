@@ -1,4 +1,4 @@
-import MissingArgumentError from '../../../src/classes/errors/MissingArgumentError';
+const MissingArgumentError = require('../../../src/classes/errors/MissingArgumentError');
 
 describe('Classes - Errors - MissingArgumentError', () => {
   it('should be instance of Error.', () => {

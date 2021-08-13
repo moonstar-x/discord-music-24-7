@@ -1,4 +1,4 @@
-import VoiceChannelError from '../../../src/classes/errors/VoiceChannelError';
+const VoiceChannelError = require('../../../src/classes/errors/VoiceChannelError');
 
 describe('Classes - Errors - VoiceChannelError', () => {
   it('should be instance of Error.', () => {

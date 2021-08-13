@@ -1,18 +1,18 @@
 /* eslint-disable prefer-destructuring */
-import fs from 'fs';
-import path from 'path';
+const fs = require('fs');
+const path = require('path');
 
 const configFilePath = path.join(__dirname, '../../config/settings.json');
 const configFromFile = fs.existsSync(configFilePath) ? JSON.parse(fs.readFileSync(configFilePath)) : {};
 
-export const discordToken = process.env.DISCORD_TOKEN || configFromFile.discord_token || null;
-export const prefix = process.env.PREFIX || configFromFile.prefix || '!';
-export const ownerID = process.env.OWNER_ID || configFromFile.owner_id || null;
-export const presenceType = process.env.PRESENCE_TYPE || configFromFile.presence_type || 'PLAYING';
-export const channelID = process.env.CHANNEL_ID || configFromFile.channel_id || null;
+const discordToken = process.env.DISCORD_TOKEN || configFromFile.discord_token || null;
+const prefix = process.env.PREFIX || configFromFile.prefix || '!';
+const ownerID = process.env.OWNER_ID || configFromFile.owner_id || null;
+const presenceType = process.env.PRESENCE_TYPE || configFromFile.presence_type || 'PLAYING';
+const channelID = process.env.CHANNEL_ID || configFromFile.channel_id || null;
 
-export const soundcloudClientID = process.env.SOUNDCLOUD_CLIENT_ID || configFromFile.soundcloud_client_id || null;
-export const youtubeCookie = process.env.YOUTUBE_COOKIE || configFromFile.youtube_cookie || null;
+const soundcloudClientID = process.env.SOUNDCLOUD_CLIENT_ID || configFromFile.soundcloud_client_id || null;
+const youtubeCookie = process.env.YOUTUBE_COOKIE || configFromFile.youtube_cookie || null;
 
 // Boolean settings are a bit weird to parse with previous notation, especially if set value is falsy.
 let shuffle;
@@ -56,4 +56,15 @@ if (process.env.hasOwnProperty('CHANNEL_LEAVE_ON_EMPTY')) {
   channelLeaveOnEmpty = false;
 }
 
-export { shuffle, pauseOnEmpty, channelLeaveOnEmpty };
+module.exports = {
+  discordToken,
+  prefix,
+  ownerID,
+  presenceType,
+  channelID,
+  soundcloudClientID,
+  youtubeCookie,
+  shuffle,
+  pauseOnEmpty,
+  channelLeaveOnEmpty
+};

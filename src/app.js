@@ -1,8 +1,8 @@
 /* eslint-disable max-statements */
-import logger from '@greencoast/logger';
-import path from 'path';
-import { discordToken, prefix, ownerID } from './common/settings';
-import ExtendedClient from './classes/extensions/ExtendedClient';
+const logger = require('@greencoast/logger');
+const path = require('path');
+const { discordToken, prefix, ownerID } = require('./common/settings') ;
+const ExtendedClient = require('./classes/extensions/ExtendedClient');
 
 const client = new ExtendedClient({
   commandPrefix: prefix,

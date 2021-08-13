@@ -6,4 +6,4 @@ class URLError extends Error {
   }
 }
 
-export default URLError;
+module.exports = URLError;

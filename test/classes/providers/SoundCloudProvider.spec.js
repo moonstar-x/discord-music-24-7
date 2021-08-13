@@ -1,8 +1,8 @@
-import SoundCloudProvider from '../../../src/classes/providers/SoundCloudProvider';
-import AbstractProvider from '../../../src/classes/providers/AbstractProvider';
-import MissingArgumentError from '../../../src/classes/errors/MissingArgumentError';
-import * as settings from '../../../src/common/settings';
-import { Readable } from 'stream';
+const SoundCloudProvider = require('../../../src/classes/providers/SoundCloudProvider');
+const AbstractProvider = require('../../../src/classes/providers/AbstractProvider');
+const MissingArgumentError = require('../../../src/classes/errors/MissingArgumentError');
+const settings = require('../../../src/common/settings');
+const { Readable } = require('stream');
 
 jest.mock('soundcloud-downloader', () => ({
   getInfo: jest.fn(() => Promise.resolve({ title: 'Song' })),

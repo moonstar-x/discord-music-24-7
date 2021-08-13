@@ -1,4 +1,4 @@
-import URLError from '../../../src/classes/errors/URLError';
+const URLError = require('../../../src/classes/errors/URLError');
 
 describe('Classes - Errors - URLError', () => {
   it('should be instance of Error.', () => {

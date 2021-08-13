@@ -1,6 +1,6 @@
-import { DATA_PATH, QUEUE_PATH, LOCAL_MUSIC_PATH, createLocalMusicDirectoryIfNoExists, createQueueFileIfNoExists, createDataDirectoryIfNoExists } from '../../src/common/paths';
-import logger from '@greencoast/logger';
-import fs from 'fs';
+const { DATA_PATH, QUEUE_PATH, LOCAL_MUSIC_PATH, createLocalMusicDirectoryIfNoExists, createQueueFileIfNoExists, createDataDirectoryIfNoExists } = require('../../src/common/paths');
+const logger = require('@greencoast/logger');
+const fs = require('fs');
 
 jest.mock('@greencoast/logger');
 jest.mock('fs');

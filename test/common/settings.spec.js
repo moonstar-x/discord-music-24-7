@@ -1,6 +1,6 @@
 /* eslint-disable max-statements */
 /* eslint-disable camelcase */
-import fs from 'fs';
+const fs = require('fs');
 
 let settings;
 

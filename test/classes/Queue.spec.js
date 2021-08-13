@@ -1,7 +1,7 @@
 /* eslint-disable no-new */
-import fs from 'fs';
-import Queue from '../../src/classes/Queue';
-import MissingArgumentError from '../../src/classes/errors/MissingArgumentError';
+const fs = require('fs');
+const Queue = require('../../src/classes/Queue');
+const MissingArgumentError = require('../../src/classes/errors/MissingArgumentError');
 
 jest.mock('fs');
 

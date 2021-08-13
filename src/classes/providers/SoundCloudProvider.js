@@ -1,8 +1,8 @@
-import AbstractProvider from './AbstractProvider';
-import scdl from 'soundcloud-downloader';
-import logger from '@greencoast/logger';
-import MissingArgumentError from '../errors/MissingArgumentError';
-import { soundcloudClientID } from '../../common/settings';
+const AbstractProvider = require('./AbstractProvider');
+const scdl = require('soundcloud-downloader');
+const logger = require('@greencoast/logger');
+const MissingArgumentError = require('../errors/MissingArgumentError');
+const { soundcloudClientID } = require('../../common/settings');
 
 class SoundCloudProvider extends AbstractProvider {
   createStream(source) {
@@ -36,4 +36,4 @@ class SoundCloudProvider extends AbstractProvider {
   }
 }
 
-export default SoundCloudProvider;
+module.exports = SoundCloudProvider;

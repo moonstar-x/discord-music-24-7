@@ -1,7 +1,7 @@
-import YouTubeProvider from '../providers/YouTubeProvider';
-import SoundCloudProvider from '../providers/SoundCloudProvider';
-import LocalProvider from '../providers/LocalProvider';
-import URLError from '../errors/URLError';
+const YouTubeProvider = require('../providers/YouTubeProvider');
+const SoundCloudProvider = require('../providers/SoundCloudProvider');
+const LocalProvider = require('../providers/LocalProvider');
+const URLError = require('../errors/URLError');
 
 const youtubeProvider = new YouTubeProvider();
 const soundCloudProvider = new SoundCloudProvider();
@@ -25,4 +25,4 @@ class ProviderFactory {
   }
 }
 
-export default ProviderFactory;
+module.exports = ProviderFactory;

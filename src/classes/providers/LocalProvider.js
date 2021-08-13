@@ -1,8 +1,8 @@
-import AbstractProvider from './AbstractProvider';
-import fs from 'fs';
-import * as mm from 'music-metadata';
-import logger from '@greencoast/logger';
-import { Readable } from 'stream';
+const AbstractProvider = require('./AbstractProvider');
+const fs = require('fs');
+const mm = require('music-metadata');
+const logger = require('@greencoast/logger');
+const { Readable } = require('stream');
 
 class LocalProvider extends AbstractProvider {
   createStream(source) {
@@ -55,4 +55,4 @@ LocalProvider.isFileSupported = (path) => {
   return LocalProvider.FILE_EXTENSIONS.some((ext) => path.endsWith(ext));
 };
 
-export default LocalProvider;
+module.exports = LocalProvider;

@@ -1,37 +1,37 @@
-import EventEmitter from 'events';
+const { EventEmitter } = require('events');
 
-export const userMock = {
+const userMock = {
   username: 'username'
 };
 
-export const commandMock = {
+const commandMock = {
   name: 'command',
   description: 'description'
 };
 
-export const commandGroupMock = {
+const commandGroupMock = {
   name: 'group',
   commands: [commandMock, commandMock]
 };
 
-export const memberMock = {
+const memberMock = {
   displayName: 'display name'
 };
 
-export const guildMock = {
+const guildMock = {
   name: 'guild name'
 };
 
-export const dispatcherMock = {
+const dispatcherMock = {
   resume: jest.fn(),
   pause: jest.fn()
 };
 
-export const connectionMock = {
+const connectionMock = {
   play: jest.fn(() => dispatcherMock)
 };
 
-export const channelMock = {
+const channelMock = {
   joinable: true,
   name: 'channel',
   guild: guildMock,
@@ -39,7 +39,7 @@ export const channelMock = {
   members: [memberMock, memberMock]
 };
 
-export const clientMock = {
+const clientMock = {
   commandPrefix: '!',
   handleCommandError: jest.fn(),
   registry: {
@@ -52,7 +52,7 @@ export const clientMock = {
   player: new EventEmitter()
 };
 
-export const messageMock = {
+const messageMock = {
   reply: jest.fn(),
   guild: guildMock,
   content: 'message',
@@ -60,4 +60,17 @@ export const messageMock = {
   author: userMock,
   embed: jest.fn(),
   say: jest.fn()
+};
+
+module.exports = {
+  userMock,
+  commandMock,
+  commandGroupMock,
+  memberMock,
+  guildMock,
+  dispatcherMock,
+  connectionMock,
+  channelMock,
+  clientMock,
+  messageMock
 };

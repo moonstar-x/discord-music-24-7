@@ -1,7 +1,7 @@
-import logger from '@greencoast/logger';
-import SkipCommand from '../../../src/commands/player/Skip';
-import ExtendedCommand from '../../../src/classes/extensions/ExtendedCommand';
-import { clientMock, messageMock } from '../../../__mocks__/discordMocks';
+const logger = require('@greencoast/logger');
+const SkipCommand = require('../../../src/commands/player/Skip');
+const ExtendedCommand = require('../../../src/classes/extensions/ExtendedCommand');
+const { clientMock, messageMock } = require('../../../__mocks__/discordMocks');
 
 let command;
 
