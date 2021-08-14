@@ -36,6 +36,7 @@ const channelMock = {
   name: 'channel',
   guild: guildMock,
   join: jest.fn(() => Promise.resolve(connectionMock)),
+  send: jest.fn(),
   members: [memberMock, memberMock]
 };
 
@@ -58,8 +59,7 @@ const messageMock = {
   content: 'message',
   member: memberMock,
   author: userMock,
-  embed: jest.fn(),
-  say: jest.fn()
+  channel: channelMock
 };
 
 module.exports = {
