@@ -78,7 +78,7 @@ client.on('guildDelete', () => {
 
 client.on('ready', async() => {
   try {
-    await client.player.initialize();
+    await client.player.initialize(config.get('CHANNEL_ID'));
   } catch (error) {
     logger.fatal(error);
     process.exit(1);
