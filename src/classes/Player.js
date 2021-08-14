@@ -1,3 +1,4 @@
+/* eslint-disable max-statements */
 const logger = require('@greencoast/logger');
 const { EventEmitter } = require('events');
 const Queue = require('./Queue');
@@ -39,111 +40,109 @@ class Player extends EventEmitter {
     }
   }
 
-  initialize(channelID) {
+  async initialize(channelID) {
     if (!channelID) {
       throw new MissingArgumentError('channelID is required in bot config!');
     }
 
-    this.client.presenceManager.update('◼ Nothing to play');
+    await this.client.presenceManager.update('◼ Nothing to play');
 
-    return this.client.channels.fetch(channelID)
-      .then((channel) => {
-        if (!channel.joinable) {
-          throw new VoiceChannelError("I don't have enough permissions to join the configured voice channel!");
-        }
+    try {
+      const channel = await this.client.channels.fetch(channelID);
 
-        return this.updateChannel(channel);
-      })
-      .catch((error) => {
-        if (error instanceof VoiceChannelError) {
-          throw error;
-        }
-        
-        if (error === 'DiscordAPIError: Unknown Channel') {
-          throw new VoiceChannelError('The channel I tried to join does not exist. Please check the channelID set up in your bot config.');
-        }
+      if (!channel.joinable) {
+        throw new VoiceChannelError("I don't have enough permissions to join the configured voice channel!");
+      }
 
-        logger.fatal(error);
-        throw new VoiceChannelError('Something went wrong when trying to look for the channel I was supposed to join.');
-      });
-  }
+      return await this.updateChannel(channel);
+    } catch (error) {
+      if (error instanceof VoiceChannelError) {
+        throw error;
+      }
+      
+      if (error === 'DiscordAPIError: Unknown Channel') {
+        throw new VoiceChannelError('The channel I tried to join does not exist. Please check the channelID set up in your bot config.');
+      }
 
-  updateChannel(channel) {
-    logger.info(`Joined ${channel.name} in ${channel.guild.name}.`);
-    this.channel = channel;
-
-    if (!this.connection) {
-      return channel.join()
-        .then((connection) => {
-          this.connection = connection;
-          this.updateListeners();
-
-          if (!this.dispatcher) {
-            this.play();
-          }
-        })
-        .catch((error) => {
-          logger.error(error);
-        });
+      logger.fatal(error);
+      throw new VoiceChannelError('Something went wrong when trying to look for the channel I was supposed to join.');
     }
   }
 
-  play() {
+  async updateChannel(channel) {
+    logger.info(`Joined ${channel.name} in ${channel.guild.name}.`);
+    this.channel = channel;
+
+    try {
+      if (!this.connection) {
+        this.connection = await channel.join();
+        this.updateListeners();
+  
+        if (!this.dispatcher) {
+          this.play();
+        }
+      }
+    } catch (error) {
+      logger.error(error);
+    }
+  }
+
+  async play() {
     const url = this.queue.getNext();
     const provider = this.providerFactory.getInstance(url);
 
-    return provider.createStream(url)
-      .then((stream) => {
-        // Something happened while creating the stream.
-        if (!stream) {
+    try {
+      const stream = await provider.createStream(url);
+
+      // Something happened while creating the stream.
+      if (!stream) {
+        this.play();
+      }
+
+      this.dispatcher = this.connection.play(stream);
+      this.currentSong = stream.info;
+
+      if (!this.updateDispatcherStatus()) {
+        this.updatePresenceWithSong();
+      }
+
+      this.removeAllListeners('skip');
+
+      // Skip has been emitted.
+      this.once('skip', (reason) => {
+        stream.destroy();
+        logger.info(reason || `(${this.currentSong.source}): ${this.currentSong.title} has been skipped.`);
+        this.play();
+      });
+
+      // Song started
+      this.dispatcher.on('start', () => {
+        logger.info(`Playing (${this.currentSong.source}): ${this.currentSong.title} for ${this.listeners} user(s) in ${this.channel.name}.`);
+      });
+
+      // Song ended.
+      this.dispatcher.on('speaking', (speaking) => {
+        if (!speaking && !this.paused) {
           this.play();
         }
+      });
 
-        this.dispatcher = this.connection.play(stream);
-        this.currentSong = stream.info;
-
-        if (!this.updateDispatcherStatus()) {
-          this.updatePresenceWithSong();
-        }
-
-        this.removeAllListeners('skip');
-
-        // Skip has been emitted.
-        this.once('skip', (reason) => {
-          stream.destroy();
-          logger.info(reason || `(${this.currentSong.source}): ${this.currentSong.title} has been skipped.`);
-          this.play();
-        });
-
-        // Song started
-        this.dispatcher.on('start', () => {
-          logger.info(`Playing (${this.currentSong.source}): ${this.currentSong.title} for ${this.listeners} user(s) in ${this.channel.name}.`);
-        });
-
-        // Song ended.
-        this.dispatcher.on('speaking', (speaking) => {
-          if (!speaking && !this.paused) {
-            this.play();
-          }
-        });
-
-        // Error while playing song.
-        this.dispatcher.on('error', (error) => {
-          logger.error(error);
-          this.play();
-        });
-
-        // Show debug messages for dispatch.
-        if (this.client.debug) {
-          this.dispatcher.on('debug', (info) => {
-            logger.debug(info);
-          });
-        }
-      })
-      .catch((error) => {
+      // Error while playing song.
+      this.dispatcher.on('error', (error) => {
         logger.error(error);
         this.play();
       });
+
+      // Show debug messages for dispatch.
+      if (this.client.debug) {
+        this.dispatcher.on('debug', (info) => {
+          logger.debug(info);
+        });
+      }
+    } catch (error) {
+      logger.error(error);
+      this.play();
+    }
   }
 
   updateListeners() {
