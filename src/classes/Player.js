@@ -24,11 +24,9 @@ class Player {
     this.dispatcher = null;
     this.stream = null;
 
-    this.paused = false;
     this.currentSong = null;
     this.listeners = 0;
 
-    this.lastPauseTimestamp = null;
     this.pauseOnEmpty = client.config.get('PAUSE_ON_EMPTY');
   }
 
@@ -88,29 +86,21 @@ class Player {
     this.dispatcher = this.connection.play(this.stream);
     this.currentSong = this.stream.info;
 
-    if (!this.updateDispatcherStatus()) {
-      this.updatePresenceWithSong();
-    }
+    this.updateDispatcherStatus();
 
-    // Song started
     this.dispatcher.on('start', () => {
       logger.info(`Playing (${this.currentSong.source}): ${this.currentSong.title} for ${this.listeners} user(s) in ${this.channel.name}.`);
     });
 
-    // Song ended.
-    this.dispatcher.on('speaking', (speaking) => {
-      if (!speaking && !this.paused) {
-        this.play();
-      }
+    this.dispatcher.on('finish', () => {
+      this.play();
     });
 
-    // Error while playing song.
     this.dispatcher.on('error', (error) => {
       logger.error(error);
       this.play();
     });
 
-    // Show debug messages for dispatch.
     if (this.client.debug) {
       this.dispatcher.on('debug', (info) => {
         logger.debug(info);
@@ -129,7 +119,7 @@ class Player {
   }
 
   updatePresenceWithSong() {
-    const icon = this.paused ? '❙ ❙' : '►';
+    const icon = this.dispatcher.paused ? '❙ ❙' : '►';
     return this.client.presenceManager.update(`${icon} ${this.currentSong.title}`);
   }
 
@@ -146,42 +136,36 @@ class Player {
   }
 
   resumeDispatcher() {
-    if (!this.paused) {
-      return false;
+    if (!this.dispatcher.paused) {
+      return;
     }
 
     if (this.isStreamExpired()) {
       this.skipCurrentSong('Stream has expired, skipping...');
-      this.paused = false;
       return;
     }
 
-    this.paused = false;
     this.dispatcher.resume();
-    this.updatePresenceWithSong();
     logger.info('Music has been resumed.');
-    return true;
+    this.updatePresenceWithSong();
   }
 
   pauseDispatcher() {
-    if (this.paused || !this.pauseOnEmpty) {
-      return false;
+    if (this.dispatcher.paused || !this.pauseOnEmpty) {
+      return;
     }
 
-    this.lastPauseTimestamp = Date.now();
-    this.paused = true;
     this.dispatcher.pause();
-    this.updatePresenceWithSong();
     logger.info('Music has been paused because nobody is in my channel.');
-    return true;
+    this.updatePresenceWithSong();
   }
 
   isStreamExpired() {
-    if (!this.lastPauseTimestamp) {
+    if (!this.dispatcher) {
       return false;
     }
 
-    return Date.now() - this.lastPauseTimestamp > Player.STREAM_MAX_AGE;
+    return this.dispatcher.pausedTime > Player.STREAM_MAX_AGE;
   }
 }
 
