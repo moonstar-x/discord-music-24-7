@@ -1,5 +1,5 @@
 const path = require('path');
-const { shuffleArray } = require('../common/utils');
+const { shuffleArray } = require('../utils/array');
 const LocalProvider = require('../classes/providers/LocalProvider');
 
 class Queue {
