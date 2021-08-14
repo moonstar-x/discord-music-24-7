@@ -1,6 +1,6 @@
 const AbstractProvider = require('./AbstractProvider');
 const MissingArgumentError = require('../errors/MissingArgumentError');
-const scdl = require('soundcloud-downloader');
+const scdl = require('soundcloud-downloader').default;
 const logger = require('@greencoast/logger');
 
 class SoundCloudProvider extends AbstractProvider {
