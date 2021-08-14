@@ -1,43 +1,50 @@
 const logger = require('@greencoast/logger');
 const { EventEmitter } = require('events');
 const Queue = require('./Queue');
+const DataFolderManager = require('./DataFolderManager');
 const ProviderFactory = require('./providers/ProviderFactory');
 const MissingArgumentError = require('./errors/MissingArgumentError');
 const VoiceChannelError = require('./errors/VoiceChannelError');
-const { channelID, pauseOnEmpty } = require('../common/settings');
-const { QUEUE_PATH, LOCAL_MUSIC_PATH, createLocalMusicDirectoryIfNoExists, createQueueFileIfNoExists, createDataDirectoryIfNoExists } = require('../common/paths');
 
 class Player extends EventEmitter {
   constructor(client) {
     super();
 
-    createDataDirectoryIfNoExists();
-    createQueueFileIfNoExists();
-    createLocalMusicDirectoryIfNoExists();
-
     this.client = client;
-    this.queue = new Queue(QUEUE_PATH, LOCAL_MUSIC_PATH);
+
+    this.dataFolderManager = new DataFolderManager();
+    this.queue = new Queue(this.dataFolderManager, {
+      shuffle: client.config.get('SHUFFLE')
+    });
+    this.providerFactory = new ProviderFactory({
+      youtubeCookie: client.config.get('YOUTUBE_COOKIE'),
+      soundcloudClientID: client.config.get('SOUNDCLOUD_CLIENT_ID')
+    });
+
     this.channel = null;
     this.connection = null;
     this.dispatcher = null;
+
     this.paused = false;
     this.currentSong = null;
     this.listeners = 0;
-    this.lastPauseTimestamp = null;
 
-    if (client.debugEnabled) {
+    this.lastPauseTimestamp = null;
+    this.pauseOnEmpty = client.config.get('PAUSE_ON_EMPTY');
+
+    if (client.debug) {
       this.on('removeListener', (event) => {
         logger.debug(`The event ${event} has been removed.`);
       });
     }
   }
 
-  initialize() {
+  initialize(channelID) {
     if (!channelID) {
       throw new MissingArgumentError('channelID is required in bot config!');
     }
 
-    this.client.updatePresence('◼ Nothing to play');
+    this.client.presenceManager.update('◼ Nothing to play');
 
     return this.client.channels.fetch(channelID)
       .then((channel) => {
@@ -83,7 +90,7 @@ class Player extends EventEmitter {
 
   play() {
     const url = this.queue.getNext();
-    const provider = ProviderFactory.getInstance(url);
+    const provider = this.providerFactory.getInstance(url);
 
     return provider.createStream(url)
       .then((stream) => {
@@ -127,7 +134,7 @@ class Player extends EventEmitter {
         });
 
         // Show debug messages for dispatch.
-        if (this.client.debugEnabled) {
+        if (this.client.debug) {
           this.dispatcher.on('debug', (info) => {
             logger.debug(info);
           });
@@ -145,7 +152,7 @@ class Player extends EventEmitter {
 
   updatePresenceWithSong() {
     const icon = this.paused ? '❙ ❙' : '►';
-    return this.client.updatePresence(`${icon} ${this.currentSong.title}`);
+    return this.client.presenceManager.update(`${icon} ${this.currentSong.title}`);
   }
 
   updateDispatcherStatus() {
@@ -179,7 +186,7 @@ class Player extends EventEmitter {
   }
 
   pauseDispatcher() {
-    if (this.paused || !pauseOnEmpty) {
+    if (this.paused || !this.pauseOnEmpty) {
       return false;
     }
 

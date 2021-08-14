@@ -7,6 +7,8 @@ class DataFolderManager {
     this.dataPath = dataPath;
     this.queuePath = path.join(dataPath, 'queue.txt');
     this.localMusicPath = path.join(dataPath, 'local-music');
+
+    this.initialize();
   }
 
   initialize() {
