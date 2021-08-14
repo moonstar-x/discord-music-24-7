@@ -10,7 +10,7 @@
     "test:once-showlogs": "jest",
     "start": "node ./src/app.js",
     "debug": "node ./src/app.js --debug",
-    "dev": "nodemon --exec ./src/app.js",
+    "dev": "DEV_MODE=true nodemon --exec ./src/app.js",
     "lint:errors-only": "eslint src test --quiet",
     "lint": "eslint src test"
   },

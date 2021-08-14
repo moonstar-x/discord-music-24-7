@@ -40,6 +40,8 @@ class DataFolderManager {
   }
 }
 
-DataFolderManager.DEFAULT_DATA_PATH = path.join(__dirname, '../../data');
+DataFolderManager.DEFAULT_DATA_PATH = process.env.DEV_MODE === 'true' ?
+  path.join(__dirname, '../../dev-data') :
+  path.join(__dirname, '../../data');
 
 module.exports = DataFolderManager;
