@@ -4,7 +4,7 @@ const LocalProvider = require('../providers/LocalProvider');
 const URLError = require('../errors/URLError');
 
 class ProviderFactory {
-  constructor(options) {
+  constructor(options = {}) {
     this._youtubeProvider = new YouTubeProvider(options.youtubeCookie);
     this._soundCloudProvider = new SoundCloudProvider(options.soundcloudClientID);
     this._localProvider = new LocalProvider();
