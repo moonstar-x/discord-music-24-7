@@ -77,6 +77,12 @@ client.on('guildDelete', () => {
 });
 
 client.on('ready', async() => {
+  const numOfGuilds = client.guilds.cache.reduce((sum) => sum + 1, 0);
+
+  if (numOfGuilds > 1) {
+    logger.warn(`This bot is designed to work only on one server at a time. If you're seeing this message, it means your bot is in more than a server. Currently, the bot is in ${numOfGuilds} servers. Please, remove it from the rest.`);
+  }
+
   try {
     await client.player.initialize(config.get('CHANNEL_ID'));
   } catch (error) {
