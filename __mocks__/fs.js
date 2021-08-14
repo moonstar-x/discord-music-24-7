@@ -1,5 +1,5 @@
 const readFileSync = jest.fn(() => []);
-const existsSync = jest.fn(() => false);
+const existsSync = jest.fn(() => true);
 const writeFileSync = jest.fn();
 const mkdirSync = jest.fn();
 const readFile = jest.fn((path, opts, cb) => {
