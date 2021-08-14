@@ -10,13 +10,11 @@ class SkipCommand extends Command {
       group: 'player',
       guildOnly: true
     });
-
-    this.player = client.player;
   }
 
   run(message) {
-    this.player.emit('skip');
-
+    this.client.player.skipCurrentSong(`User ${message.member.displayName} has skipped the current song.`);
+    
     return message.channel.send('Song has been skipped!');
   }
 }

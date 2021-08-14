@@ -1,16 +1,13 @@
 /* eslint-disable max-statements */
 const logger = require('@greencoast/logger');
-const { EventEmitter } = require('events');
 const Queue = require('./Queue');
 const DataFolderManager = require('./DataFolderManager');
 const ProviderFactory = require('./providers/ProviderFactory');
 const MissingArgumentError = require('./errors/MissingArgumentError');
 const VoiceChannelError = require('./errors/VoiceChannelError');
 
-class Player extends EventEmitter {
+class Player {
   constructor(client) {
-    super();
-
     this.client = client;
 
     this.dataFolderManager = new DataFolderManager();
@@ -25,6 +22,7 @@ class Player extends EventEmitter {
     this.channel = null;
     this.connection = null;
     this.dispatcher = null;
+    this.stream = null;
 
     this.paused = false;
     this.currentSong = null;
@@ -32,12 +30,6 @@ class Player extends EventEmitter {
 
     this.lastPauseTimestamp = null;
     this.pauseOnEmpty = client.config.get('PAUSE_ON_EMPTY');
-
-    if (client.debug) {
-      this.on('removeListener', (event) => {
-        logger.debug(`The event ${event} has been removed.`);
-      });
-    }
   }
 
   async initialize(channelID) {
@@ -54,7 +46,7 @@ class Player extends EventEmitter {
         throw new VoiceChannelError("I don't have enough permissions to join the configured voice channel!");
       }
 
-      return await this.updateChannel(channel);
+      return this.updateChannel(channel);
     } catch (error) {
       if (error instanceof VoiceChannelError) {
         throw error;
@@ -64,7 +56,6 @@ class Player extends EventEmitter {
         throw new VoiceChannelError('The channel I tried to join does not exist. Please check the channelID set up in your bot config.');
       }
 
-      logger.fatal(error);
       throw new VoiceChannelError('Something went wrong when trying to look for the channel I was supposed to join.');
     }
   }
@@ -73,17 +64,13 @@ class Player extends EventEmitter {
     logger.info(`Joined ${channel.name} in ${channel.guild.name}.`);
     this.channel = channel;
 
-    try {
-      if (!this.connection) {
-        this.connection = await channel.join();
-        this.updateListeners();
-  
-        if (!this.dispatcher) {
-          this.play();
-        }
+    if (!this.connection) {
+      this.connection = await channel.join();
+      this.updateListeners();
+
+      if (!this.dispatcher) {
+        this.play();
       }
-    } catch (error) {
-      logger.error(error);
     }
   }
 
@@ -91,58 +78,50 @@ class Player extends EventEmitter {
     const url = this.queue.getNext();
     const provider = this.providerFactory.getInstance(url);
 
-    try {
-      const stream = await provider.createStream(url);
+    this.stream = await provider.createStream(url);
 
-      // Something happened while creating the stream.
-      if (!stream) {
-        this.play();
-      }
-
-      this.dispatcher = this.connection.play(stream);
-      this.currentSong = stream.info;
-
-      if (!this.updateDispatcherStatus()) {
-        this.updatePresenceWithSong();
-      }
-
-      this.removeAllListeners('skip');
-
-      // Skip has been emitted.
-      this.once('skip', (reason) => {
-        stream.destroy();
-        logger.info(reason || `(${this.currentSong.source}): ${this.currentSong.title} has been skipped.`);
-        this.play();
-      });
-
-      // Song started
-      this.dispatcher.on('start', () => {
-        logger.info(`Playing (${this.currentSong.source}): ${this.currentSong.title} for ${this.listeners} user(s) in ${this.channel.name}.`);
-      });
-
-      // Song ended.
-      this.dispatcher.on('speaking', (speaking) => {
-        if (!speaking && !this.paused) {
-          this.play();
-        }
-      });
-
-      // Error while playing song.
-      this.dispatcher.on('error', (error) => {
-        logger.error(error);
-        this.play();
-      });
-
-      // Show debug messages for dispatch.
-      if (this.client.debug) {
-        this.dispatcher.on('debug', (info) => {
-          logger.debug(info);
-        });
-      }
-    } catch (error) {
-      logger.error(error);
+    // If a provider encounters an error, stream will be null.
+    if (!this.stream) {
       this.play();
     }
+
+    this.dispatcher = this.connection.play(this.stream);
+    this.currentSong = this.stream.info;
+
+    if (!this.updateDispatcherStatus()) {
+      this.updatePresenceWithSong();
+    }
+
+    // Song started
+    this.dispatcher.on('start', () => {
+      logger.info(`Playing (${this.currentSong.source}): ${this.currentSong.title} for ${this.listeners} user(s) in ${this.channel.name}.`);
+    });
+
+    // Song ended.
+    this.dispatcher.on('speaking', (speaking) => {
+      if (!speaking && !this.paused) {
+        this.play();
+      }
+    });
+
+    // Error while playing song.
+    this.dispatcher.on('error', (error) => {
+      logger.error(error);
+      this.play();
+    });
+
+    // Show debug messages for dispatch.
+    if (this.client.debug) {
+      this.dispatcher.on('debug', (info) => {
+        logger.debug(info);
+      });
+    }
+  }
+
+  skipCurrentSong(reason) {
+    this.stream.destroy();
+    logger.info(reason || `(${this.currentSong.source}): ${this.currentSong.title} has been skipped.`);
+    this.play();
   }
 
   updateListeners() {
@@ -172,7 +151,7 @@ class Player extends EventEmitter {
     }
 
     if (this.isStreamExpired()) {
-      this.emit('skip', 'Stream has expired, skipping...');
+      this.skipCurrentSong('Stream has expired, skipping...');
       this.paused = false;
       return;
     }

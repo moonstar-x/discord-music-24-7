@@ -25,7 +25,7 @@ class SoundCloudProvider extends AbstractProvider {
       return stream;
     } catch (error) {
       logger.error(error);
-      null;
+      return null;
     }
   }
 
