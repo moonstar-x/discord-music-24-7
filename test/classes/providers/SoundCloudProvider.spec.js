@@ -1,22 +1,24 @@
 const SoundCloudProvider = require('../../../src/classes/providers/SoundCloudProvider');
 const AbstractProvider = require('../../../src/classes/providers/AbstractProvider');
 const MissingArgumentError = require('../../../src/classes/errors/MissingArgumentError');
-const settings = require('../../../src/common/settings');
 const { Readable } = require('stream');
 
 jest.mock('soundcloud-downloader', () => ({
-  getInfo: jest.fn(() => Promise.resolve({ title: 'Song' })),
-  download: jest.fn(() => Promise.resolve(new (require('stream').Readable)()))
+  default: {
+    getInfo: jest.fn(() => Promise.resolve({ title: 'Song' })),
+    download: jest.fn(() => Promise.resolve(new (require('stream').Readable)()))
+  }
 }));
 
 const url = 'https://soundcloud.com/insomnia-666-728529957/dreamcatcher-boca';
 
 describe('Classes - Providers - SoundCloudProvider', () => {
   let provider;
+  let clientID;
 
   beforeEach(() => {
-    provider = new SoundCloudProvider();
-    settings.soundcloudClientID = 'clientID';
+    clientID = 'clientID';
+    provider = new SoundCloudProvider(clientID);
   });
 
   it('should be instance of AbstractProvider.', () => {
@@ -24,12 +26,15 @@ describe('Classes - Providers - SoundCloudProvider', () => {
   });
 
   describe('createStream()', () => {
-    it('should throw if no clientID is set in settings.', () => {
-      settings.soundcloudClientID = null;
+    it('should reject if no clientID is passed.', () => {
+      clientID = null;
+      provider = new SoundCloudProvider(clientID);
 
-      expect(() => {
-        provider.createStream();
-      }).toThrow(MissingArgumentError);
+      expect.assertions(1);
+      return provider.createStream()
+        .catch((error) => {
+          expect(error).toBeInstanceOf(MissingArgumentError);
+        });
     });
 
     it('should return a Promise.', () => {
