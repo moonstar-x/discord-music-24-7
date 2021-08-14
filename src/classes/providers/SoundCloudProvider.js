@@ -1,18 +1,22 @@
 const AbstractProvider = require('./AbstractProvider');
+const MissingArgumentError = require('../errors/MissingArgumentError');
 const scdl = require('soundcloud-downloader');
 const logger = require('@greencoast/logger');
-const MissingArgumentError = require('../errors/MissingArgumentError');
-const { soundcloudClientID } = require('../../common/settings');
 
 class SoundCloudProvider extends AbstractProvider {
+  constructor(clientID) {
+    super();
+    this.clientID = clientID;
+  }
+
   createStream(source) {
-    if (!soundcloudClientID) {
+    if (!this.clientID) {
       throw new MissingArgumentError('A SoundCloud Client ID is required to use the SoundCloud provider!');
     }
 
     return this.getInfo(source)
       .then((info) => {
-        return scdl.download(source, soundcloudClientID)
+        return scdl.download(source, this.clientID)
           .then((stream) => {
             stream.info = {
               title: info.title,
@@ -32,7 +36,7 @@ class SoundCloudProvider extends AbstractProvider {
   }
 
   getInfo(source) {
-    return scdl.getInfo(source, soundcloudClientID);
+    return scdl.getInfo(source, this.clientID);
   }
 }
 

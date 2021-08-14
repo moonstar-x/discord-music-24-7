@@ -2,19 +2,23 @@
 const AbstractProvider = require('./AbstractProvider');
 const ytdl = require('ytdl-core');
 const logger = require('@greencoast/logger');
-const { youtubeCookie } = require('../../common/settings');
 
 class YouTubeProvider extends AbstractProvider {
+  constructor(cookie) {
+    super();
+    this.cookie = cookie;
+  }
+
   createStream(source) {
     const options = {
       quality: 'highestaudio',
       highWaterMark: 1 << 25
     };
 
-    if (youtubeCookie) {
+    if (this.cookie) {
       options.requestOptions = {
         headers: {
-          Cookie: youtubeCookie
+          Cookie: this.cookie
         }
       };
     }

@@ -3,22 +3,24 @@ const SoundCloudProvider = require('../providers/SoundCloudProvider');
 const LocalProvider = require('../providers/LocalProvider');
 const URLError = require('../errors/URLError');
 
-const youtubeProvider = new YouTubeProvider();
-const soundCloudProvider = new SoundCloudProvider();
-const localProvider = new LocalProvider();
-
 class ProviderFactory {
-  static getInstance(url) {
+  constructor(options) {
+    this._youtubeProvider = new YouTubeProvider(options.youtubeCookie);
+    this._soundCloudProvider = new SoundCloudProvider(options.soundcloudClientID);
+    this._localProvider = new LocalProvider();
+  }
+
+  getInstance(url) {
     if (url.includes('youtube.com') || url.includes('youtu.be')) {
-      return youtubeProvider;
+      return this._youtubeProvider;
     }
 
     if (url.includes('soundcloud.com')) {
-      return soundCloudProvider;
+      return this._soundCloudProvider;
     }
 
     if (url.startsWith('local:')) {
-      return localProvider;
+      return this._localProvider;
     }
     
     throw new URLError(`Invalid URL in queue: ${url}`);
