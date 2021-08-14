@@ -9,7 +9,7 @@ class YouTubeProvider extends AbstractProvider {
     this.cookie = cookie;
   }
 
-  createStream(source) {
+  async createStream(source) {
     const options = {
       quality: 'highestaudio',
       highWaterMark: 1 << 25
@@ -23,20 +23,19 @@ class YouTubeProvider extends AbstractProvider {
       };
     }
 
-    return this.getInfo(source, options)
-      .then((info) => {
-        const stream = ytdl.downloadFromInfo(info);
-        stream.info = {
-          title: info.videoDetails.title,
-          source: 'YT'
-        };
+    try {
+      const info = await this.getInfo(source, options);
+      const stream = ytdl.downloadFromInfo(info);
+      stream.info = {
+        title: info.videoDetails.title,
+        source: 'YT'
+      };
 
-        return stream;
-      })
-      .catch((error) => {
-        logger.error(error);
-        return null;
-      });
+      return stream;
+    } catch (error) {
+      logger.error(error);
+      return null;
+    }
   }
 
   getInfo(source, options) {

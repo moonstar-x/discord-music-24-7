@@ -5,7 +5,7 @@ const logger = require('@greencoast/logger');
 const { Readable } = require('stream');
 
 class LocalProvider extends AbstractProvider {
-  createStream(source) {
+  readFile(source) {
     const path = source.substring(source.indexOf('local:') + 'local:'.length);
 
     return new Promise((resolve, reject) => {
@@ -15,28 +15,30 @@ class LocalProvider extends AbstractProvider {
           return;
         }
 
-        this.getInfo(data)
-          .then((info) => {
-            const stream = new Readable();
-            stream.info = {
-              title: `${info.common.artist ? `${info.common.artist} - ` : ''}${info.common.title || 'Local Song'}`,
-              source: 'LOCAL'
-            };
-
-            stream.push(data);
-            stream.push(null);
-
-            resolve(stream);
-          })
-          .catch((error) => {
-            reject(error);
-          });
+        resolve(data);
       });
-    })
-      .catch((error) => {
-        logger.error(error);
-        return null;
-      });
+    });
+  }
+
+  async createStream(source) {
+    try {
+      const data = await this.readFile(source);
+      const info = await this.getInfo(data);
+
+      const stream = new Readable();
+      stream.info = {
+        title: `${info.common.artist ? `${info.common.artist} - ` : ''}${info.common.title || 'Local Song'}`,
+        source: 'LOCAL'
+      };
+
+      stream.push(data);
+      stream.push(null);
+
+      return stream;
+    } catch (error) {
+      logger.error(error);
+      return null;
+    }
   }
 
   getInfo(buffer) {

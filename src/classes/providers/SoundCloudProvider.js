@@ -9,30 +9,24 @@ class SoundCloudProvider extends AbstractProvider {
     this.clientID = clientID;
   }
 
-  createStream(source) {
+  async createStream(source) {
     if (!this.clientID) {
       throw new MissingArgumentError('A SoundCloud Client ID is required to use the SoundCloud provider!');
     }
 
-    return this.getInfo(source)
-      .then((info) => {
-        return scdl.download(source, this.clientID)
-          .then((stream) => {
-            stream.info = {
-              title: info.title,
-              source: 'SC'
-            };
+    try {
+      const info = await this.getInfo(source);
+      const stream = await scdl.download(source, this.clientID);
+      stream.info = {
+        title: info.title,
+        source: 'SC'
+      };
 
-            return stream;
-          })
-          .catch((error) => {
-            throw error;
-          });
-      })
-      .catch((error) => {
-        logger.error(error);
-        return null;
-      });
+      return stream;
+    } catch (error) {
+      logger.error(error);
+      null;
+    }
   }
 
   getInfo(source) {
