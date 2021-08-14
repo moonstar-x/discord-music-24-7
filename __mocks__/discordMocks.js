@@ -15,7 +15,12 @@ const commandGroupMock = {
 };
 
 const memberMock = {
-  displayName: 'display name'
+  displayName: 'display name',
+  voice: {
+    channel: {
+      id: '123'
+    }
+  }
 };
 
 const guildMock = {
@@ -34,6 +39,7 @@ const connectionMock = {
 const channelMock = {
   joinable: true,
   name: 'channel',
+  id: '123',
   guild: guildMock,
   join: jest.fn(() => Promise.resolve(connectionMock)),
   send: jest.fn(),
@@ -50,7 +56,10 @@ const clientMock = {
     fetch: jest.fn(() => Promise.resolve(channelMock))
   },
   updatePresence: jest.fn(),
-  player: new EventEmitter()
+  player: {
+    channel: channelMock,
+    skipCurrentSong: jest.fn()
+  }
 };
 
 const messageMock = {
