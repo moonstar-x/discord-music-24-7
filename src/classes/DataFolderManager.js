@@ -15,6 +15,14 @@ class DataFolderManager {
     this._createDirectoryIfNoExists(this.localMusicPath, 'Local music directory not found! Creating...');
   }
 
+  getQueueContent() {
+    return fs.readFileSync(this.queuePath).toString();
+  }
+
+  getLocalMusicContent() {
+    return fs.readdirSync(this.localMusicPath);
+  }
+
   _createDirectoryIfNoExists(folderPath, createMessage) {
     if (!fs.existsSync(folderPath)) {
       logger.warn(createMessage);
