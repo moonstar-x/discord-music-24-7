@@ -17,7 +17,7 @@ class SkipCommand extends Command {
   run(message) {
     this.player.emit('skip');
 
-    return message.say('Song has been skipped!');
+    return message.channel.send('Song has been skipped!');
   }
 }
 
