@@ -27,8 +27,14 @@ const guildMock = {
 };
 
 const dispatcherMock = {
-  resume: jest.fn(),
-  pause: jest.fn()
+  resume: jest.fn(function() {
+    this.paused = false;
+  }),
+  pause: jest.fn(function() {
+    this.paused = true;
+  }),
+  paused: false,
+  pausedTime: 1000
 };
 
 const connectionMock = {
@@ -54,7 +60,6 @@ const clientMock = {
   channels: {
     fetch: jest.fn(() => Promise.resolve(channelMock))
   },
-  updatePresence: jest.fn(),
   player: {
     channel: channelMock,
     skipCurrentSong: jest.fn(),
@@ -62,7 +67,13 @@ const clientMock = {
     updateListeners: jest.fn(),
     updateDispatcherStatus: jest.fn()
   },
-  user: userMock
+  user: userMock,
+  config: {
+    get: jest.fn()
+  },
+  presenceManager: {
+    update: jest.fn()
+  }
 };
 
 const messageMock = {

@@ -73,6 +73,10 @@ class Player {
   }
 
   async play() {
+    if (!this.connection) {
+      return;
+    }
+
     const url = this.queue.getNext();
     const provider = this.providerFactory.getInstance(url);
 
