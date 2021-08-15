@@ -134,6 +134,16 @@ The bot can play music from the following URLs:
 
 Playlists are not officially supported yet. You may find that they may work but generally only the first song will be pulled from them.
 
+You can also play radio streams, as long as the stream is of the following types:
+
+* `audio/aac`
+* `audio/mpeg`
+* `audio/ogg`
+* `audio/opus`
+* `audio/wav`
+
+> Pausing/Resuming may take a bit longer with these streams.
+
 ## Getting 429 Too Many Requests (YouTube)
 
 If you're reaching **429: Too Many Requests** errors in the console, then most likely you're being rate limited by YouTube because your connection is not authenticated.

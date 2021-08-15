@@ -1,8 +1,8 @@
 const ProviderFactory = require('../../../src/classes/providers/ProviderFactory');
-const URLError = require('../../../src/classes/errors/URLError');
 const YouTubeProvider = require('../../../src/classes/providers/YouTubeProvider');
 const SoundCloudProvider = require('../../../src/classes/providers/SoundCloudProvider');
 const LocalProvider = require('../../../src/classes/providers/LocalProvider');
+const GenericStreamProvider = require('../../../src/classes/providers/GenericStreamProvider');
 
 describe('Classes - Providers - ProviderFactory', () => {
   let factory;
@@ -12,12 +12,6 @@ describe('Classes - Providers - ProviderFactory', () => {
   });
 
   describe('getInstance()', () => {
-    it('should throw URLError if url is not supported.', () => {
-      expect(() => {
-        factory.getInstance('https://notsupported.tld');
-      }).toThrow(URLError);
-    });
-
     it('should return a YouTubeProvider if url corresponds to YouTube.', () => {
       expect(factory.getInstance('https://www.youtube.com/watch?v=PYGODWJgR-c')).toBeInstanceOf(YouTubeProvider);
       expect(factory.getInstance('https://youtu.be/PYGODWJgR-c')).toBeInstanceOf(YouTubeProvider);
@@ -29,6 +23,10 @@ describe('Classes - Providers - ProviderFactory', () => {
 
     it('should return a LocalProvider if url corresponds to a local file.', () => {
       expect(factory.getInstance('local:/path/to/audio/file')).toBeInstanceOf(LocalProvider);
+    });
+
+    it('should return a GenericStreamProvider if url does not correspond to any of the above.', () => {
+      expect(factory.getInstance('https://generic.stream.tld')).toBeInstanceOf(GenericStreamProvider);
     });
   });
 });

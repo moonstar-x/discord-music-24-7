@@ -1,6 +1,6 @@
 {
   "name": "discord-music-24-7",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "description": "A 24/7 music bot for Discord.",
   "main": "./src/app.js",
   "scripts": {
@@ -31,6 +31,7 @@
     "@discordjs/opus": "^0.5.3",
     "@greencoast/discord.js-extended": "^1.2.0",
     "@greencoast/logger": "^1.1.0",
+    "axios": "^0.21.1",
     "discord.js": "^12.5.3",
     "music-metadata": "^7.11.3",
     "soundcloud-downloader": "^1.0.0",

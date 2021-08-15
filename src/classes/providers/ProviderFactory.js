@@ -1,13 +1,14 @@
 const YouTubeProvider = require('../providers/YouTubeProvider');
 const SoundCloudProvider = require('../providers/SoundCloudProvider');
 const LocalProvider = require('../providers/LocalProvider');
-const URLError = require('../errors/URLError');
+const GenericStreamProvider = require('../providers/GenericStreamProvider');
 
 class ProviderFactory {
   constructor(options = {}) {
     this._youtubeProvider = new YouTubeProvider(options.youtubeCookie);
     this._soundCloudProvider = new SoundCloudProvider(options.soundcloudClientID);
     this._localProvider = new LocalProvider();
+    this._genericStreamProvider = new GenericStreamProvider();
   }
 
   getInstance(url) {
@@ -23,7 +24,7 @@ class ProviderFactory {
       return this._localProvider;
     }
     
-    throw new URLError(`Invalid URL in queue: ${url}`);
+    return this._genericStreamProvider;
   }
 }
 
