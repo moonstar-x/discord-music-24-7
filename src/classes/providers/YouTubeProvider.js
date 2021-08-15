@@ -1,38 +1,41 @@
 /* eslint-disable no-bitwise */
-import AbstractProvider from './AbstractProvider';
-import ytdl from 'ytdl-core';
-import logger from '@greencoast/logger';
-import { youtubeCookie } from '../../common/settings';
+const AbstractProvider = require('./AbstractProvider');
+const ytdl = require('ytdl-core');
+const logger = require('@greencoast/logger');
 
 class YouTubeProvider extends AbstractProvider {
-  createStream(source) {
+  constructor(cookie) {
+    super();
+    this.cookie = cookie;
+  }
+
+  async createStream(source) {
     const options = {
       quality: 'highestaudio',
       highWaterMark: 1 << 25
     };
 
-    if (youtubeCookie) {
+    if (this.cookie) {
       options.requestOptions = {
         headers: {
-          Cookie: youtubeCookie
+          Cookie: this.cookie
         }
       };
     }
 
-    return this.getInfo(source, options)
-      .then((info) => {
-        const stream = ytdl.downloadFromInfo(info);
-        stream.info = {
-          title: info.videoDetails.title,
-          source: 'YT'
-        };
+    try {
+      const info = await this.getInfo(source, options);
+      const stream = ytdl.downloadFromInfo(info);
+      stream.info = {
+        title: info.videoDetails.title,
+        source: 'YT'
+      };
 
-        return stream;
-      })
-      .catch((error) => {
-        logger.error(error);
-        return null;
-      });
+      return stream;
+    } catch (error) {
+      logger.error(error);
+      return null;
+    }
   }
 
   getInfo(source, options) {
@@ -40,4 +43,4 @@ class YouTubeProvider extends AbstractProvider {
   }
 }
 
-export default YouTubeProvider;
+module.exports = YouTubeProvider;

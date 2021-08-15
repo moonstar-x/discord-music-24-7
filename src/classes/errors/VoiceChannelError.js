@@ -6,4 +6,4 @@ class VoiceChannelError extends Error {
   }
 }
 
-export default VoiceChannelError;
+module.exports = VoiceChannelError;

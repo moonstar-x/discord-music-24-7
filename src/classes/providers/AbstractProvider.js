@@ -26,4 +26,4 @@ class AbstractProvider {
   }
 }
 
-export default AbstractProvider;
+module.exports = AbstractProvider;

@@ -1,101 +1,98 @@
-/* eslint-disable max-statements */
-import logger from '@greencoast/logger';
-import path from 'path';
-import { discordToken, prefix, ownerID } from './common/settings';
-import ExtendedClient from './classes/extensions/ExtendedClient';
+const path = require('path');
+const logger = require('@greencoast/logger');
+const { ExtendedClient, ConfigProvider } = require('@greencoast/discord.js-extended');
+const { ACTIVITY_TYPE } = require('./constants');
+const Player = require('./classes/Player');
+const VoiceStateUpdater = require('./classes/VoiceStateUpdater');
 
-const client = new ExtendedClient({
-  commandPrefix: prefix,
-  owner: ownerID
+const config = new ConfigProvider({
+  env: process.env,
+  configPath: path.join(__dirname, '../config/settings.json'),
+  default: {
+    PREFIX: '!',
+    OWNER_ID: null,
+    PRESENCE_TYPE: ACTIVITY_TYPE.PLAYING,
+    CHANNEL_ID: null,
+    SOUNDCLOUD_CLIENT_ID: null,
+    YOUTUBE_COOKIE: null,
+    SHUFFLE: true,
+    PAUSE_ON_EMPTY: true,
+    OWNER_REPORTING: false
+  },
+  types: {
+    TOKEN: 'string',
+    PREFIX: 'string',
+    OWNER_ID: ['string', 'null'],
+    PRESENCE_TYPE: 'string',
+    CHANNEL_ID: 'string',
+    SOUNDCLOUD_CLIENT_ID: ['string', 'null'],
+    YOUTUBE_COOKIE: ['string', 'null'],
+    SHUFFLE: 'boolean',
+    PAUSE_ON_EMPTY: 'boolean',
+    OWNER_REPORTING: 'boolean'
+  }
 });
 
+const client = new ExtendedClient({
+  config,
+  debug: process.argv.includes('--debug'),
+  errorOwnerReporting: config.get('OWNER_REPORTING'),
+  owner: config.get('OWNER_ID'),
+  prefix: config.get('PREFIX'),
+  presence: {
+    refreshInterval: null,
+    type: config.get('PRESENCE_TYPE')
+  }
+});
+
+client.player = new Player(client);
+client.voiceStateUpdater = new VoiceStateUpdater(client);
+
+client
+  .registerDefaultEvents()
+  .registerExtraDefaultEvents();
+
 client.registry
-  .registerDefaultTypes()
   .registerGroups([
     ['misc', 'Miscellaneous Commands'],
     ['player', 'Player Commands']
   ])
-  .registerCommandsIn(path.join(__dirname, 'commands'));
-
-if (client.debugEnabled) {
-  client.on('debug', (info) => {
-    logger.debug(info);
-  });
-}
-
-client.on('error', (error) => {
-  client.handleError(error);
-});
+  .registerCommandsIn(path.join(__dirname, './commands'));
 
 client.on('guildCreate', (guild) => {
-  logger.info(`Joined ${guild.name} guild!`);
-  client.updatePresence();
+  const numOfGuilds = client.guilds.cache.reduce((sum) => sum + 1, 0);
+
+  if (numOfGuilds > 1) {
+    logger.warn(`This bot is designed to work only on one server at a time. If you're seeing this message, it means your bot has been added to another server. Please, remove your bot from ${guild.name}.`);
+  }
 });
 
-client.on('guildDelete', (guild) => {
-  logger.info(`Left ${guild.name} guild!`);
-  client.updatePresence();
+client.on('guildDelete', () => {
+  const numOfGuilds = client.guilds.cache.reduce((sum) => sum + 1, 0);
+
+  if (numOfGuilds > 1) {
+    logger.warn(`This bot is designed to work only on one server at a time. If you're seeing this message, it means your bot is in more than a server. Currently, the bot is in ${numOfGuilds} servers. Please, remove it from the rest.`);
+  }
 });
 
-client.on('guildUnavailable', (guild) => {
-  logger.warn(`The guild ${guild.name} is unavailable!`);
+client.on('ready', async() => {
+  const numOfGuilds = client.guilds.cache.reduce((sum) => sum + 1, 0);
+
+  if (numOfGuilds > 1) {
+    logger.warn(`This bot is designed to work only on one server at a time. If you're seeing this message, it means your bot is in more than a server. Currently, the bot is in ${numOfGuilds} servers. Please, remove it from the rest.`);
+  }
+
+  try {
+    await client.player.initialize(config.get('CHANNEL_ID'));
+  } catch (error) {
+    logger.fatal(error);
+    process.exit(1);
+  }
 });
 
-client.on('invalidated', () => {
-  logger.fatal('The client has been invalidated. Exiting with code 1.');
-  process.exit(1);
-});
-
-client.on('rateLimit', (info) => {
-  logger.warn(info);
-});
-
-client.on('ready', () => {
-  logger.info('Connected to Discord! - Ready.');
-
-  client.player.initialize()
-    .catch(() => {
-      process.exit(1);
-    });
-});
-
-client.on('warn', (info) => {
-  logger.warn(info);
-});
 
 client.on('voiceStateUpdate', (oldState, newState) => {
-  const oldChannel = oldState.channel ? oldState.channel.id : null;
-  const newChannel = newState.channel ? newState.channel.id : null;
-
-  if (oldChannel === newChannel) {
-    return;
-  }
-
-  const botWasInOldChannel = oldChannel === client.player.channel.id;
-  const botIsInNewChannel = newChannel === client.player.channel.id;
-
-  // Bot was moved to another channel.
-  if (botWasInOldChannel && !botIsInNewChannel && newState.id === client.player.client.user.id) {
-    client.player.updateChannel(newState.channel);
-    client.player.updateListeners();
-    client.player.updateDispatcherStatus();
-    return;
-  }
-
-  // New user has joined the channel where the bot is in.
-  if (!oldChannel && botIsInNewChannel || botIsInNewChannel) {
-    logger.info(`User ${newState.member.displayName} has joined ${client.player.channel.name}.`);
-    client.player.updateListeners();
-    client.player.updateDispatcherStatus();
-    return;
-  }
-
-  // A user has left the channel where the bot was in.
-  if (!newChannel && botWasInOldChannel || botWasInOldChannel) {
-    logger.info(`User ${oldState.member.displayName} has left ${client.player.channel.name}.`);
-    client.player.updateListeners();
-    client.player.updateDispatcherStatus();
-  }
+  return client.voiceStateUpdater.handleUpdate(oldState, newState);
 });
 
-client.login(discordToken);
+client.login(config.get('TOKEN'));

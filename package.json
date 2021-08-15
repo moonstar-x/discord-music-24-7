@@ -1,19 +1,18 @@
 {
   "name": "discord-music-24-7",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "description": "A 24/7 music bot for Discord.",
-  "main": "src/app.js",
+  "main": "./src/app.js",
   "scripts": {
-    "test": "node_modules/.bin/jest --watchAll --silent",
-    "test:showlogs": "node_modules/.bin/jest --watchAll",
-    "test:once": "node_modules/.bin/jest --silent",
-    "test:once-showlogs": "node_modules/.bin/jest",
-    "build": "node_modules/.bin/babel src -d build",
-    "start": "node ./build/app.js",
-    "debug": "node ./build/app.js --debug",
-    "dev": "PREFIX=! nodemon --exec node_modules/.bin/babel-node ./src/app.js",
-    "lint:errors-only": "node_modules/.bin/eslint src test --quiet",
-    "lint": "node_modules/.bin/eslint src test"
+    "test": "jest --watchAll --silent",
+    "test:showlogs": "jest --watchAll",
+    "test:once": "jest --silent",
+    "test:once-showlogs": "jest",
+    "start": "node ./src/app.js",
+    "debug": "node ./src/app.js --debug",
+    "dev": "DEV_MODE=true nodemon --exec node ./src/app.js",
+    "lint:errors-only": "eslint src test --quiet",
+    "lint": "eslint src test"
   },
   "engines": {
     "node": ">=12.0.0"
@@ -29,34 +28,20 @@
   },
   "homepage": "https://github.com/moonstar-x/discord-music-24-7#readme",
   "dependencies": {
-    "@discordjs/opus": "^0.3.3",
-    "@greencoast/logger": "^1.0.1",
-    "discord.js": "^12.5.1",
-    "discord.js-commando": "github:discordjs/Commando",
-    "music-metadata": "^7.5.2",
-    "soundcloud-downloader": "^0.2.2",
-    "ytdl-core": "^4.2.1"
-  },
-  "eslintConfig": {
-    "extends": [
-      "greencoast/node"
-    ],
-    "rules": {
-      "camelcase": "off"
-    }
+    "@discordjs/opus": "^0.5.3",
+    "@greencoast/discord.js-extended": "^1.2.0",
+    "@greencoast/logger": "^1.1.0",
+    "discord.js": "^12.5.3",
+    "music-metadata": "^7.11.3",
+    "soundcloud-downloader": "^1.0.0",
+    "ytdl-core": "^4.9.1"
   },
   "devDependencies": {
-    "@babel/cli": "^7.12.10",
-    "@babel/core": "^7.12.10",
-    "@babel/node": "^7.12.10",
-    "@babel/preset-env": "^7.12.11",
-    "@types/jest": "^26.0.19",
-    "babel-eslint": "^10.1.0",
-    "babel-jest": "^26.6.3",
-    "eslint": "^7.16.0",
-    "eslint-config-greencoast": "^0.0.2",
-    "jest": "^26.6.3",
-    "nodemon": "^2.0.6",
+    "@types/jest": "^27.0.1",
+    "eslint": "^7.32.0",
+    "eslint-config-greencoast": "0.0.2",
+    "jest": "^27.0.6",
+    "nodemon": "^2.0.12",
     "text-encoding": "^0.7.0"
   }
 }

@@ -1,6 +1,6 @@
-import YouTubeProvider from '../../../src/classes/providers/YouTubeProvider';
-import AbstractProvider from '../../../src/classes/providers/AbstractProvider';
-import { Readable } from 'stream';
+const YouTubeProvider = require('../../../src/classes/providers/YouTubeProvider');
+const AbstractProvider = require('../../../src/classes/providers/AbstractProvider');
+const { Readable } = require('stream');
 
 jest.mock('ytdl-core');
 

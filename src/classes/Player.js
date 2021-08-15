@@ -1,142 +1,120 @@
-import logger from '@greencoast/logger';
-import EventEmitter from 'events';
-import Queue from './Queue';
-import ProviderFactory from './providers/ProviderFactory';
-import MissingArgumentError from './errors/MissingArgumentError';
-import VoiceChannelError from './errors/VoiceChannelError';
-import { channelID, pauseOnEmpty } from '../common/settings';
-import { QUEUE_PATH, LOCAL_MUSIC_PATH, createLocalMusicDirectoryIfNoExists, createQueueFileIfNoExists, createDataDirectoryIfNoExists } from '../common/paths';
+const logger = require('@greencoast/logger');
+const Queue = require('./Queue');
+const DataFolderManager = require('./DataFolderManager');
+const ProviderFactory = require('./providers/ProviderFactory');
+const MissingArgumentError = require('./errors/MissingArgumentError');
+const VoiceChannelError = require('./errors/VoiceChannelError');
 
-class Player extends EventEmitter {
+class Player {
   constructor(client) {
-    super();
-
-    createDataDirectoryIfNoExists();
-    createQueueFileIfNoExists();
-    createLocalMusicDirectoryIfNoExists();
-
     this.client = client;
-    this.queue = new Queue(QUEUE_PATH, LOCAL_MUSIC_PATH);
+
+    this.dataFolderManager = new DataFolderManager();
+    this.queue = new Queue(this.dataFolderManager, {
+      shuffle: client.config.get('SHUFFLE')
+    });
+    this.providerFactory = new ProviderFactory({
+      youtubeCookie: client.config.get('YOUTUBE_COOKIE'),
+      soundcloudClientID: client.config.get('SOUNDCLOUD_CLIENT_ID')
+    });
+
     this.channel = null;
     this.connection = null;
     this.dispatcher = null;
-    this.paused = false;
+    this.stream = null;
+
     this.currentSong = null;
     this.listeners = 0;
-    this.lastPauseTimestamp = null;
 
-    if (client.debugEnabled) {
-      this.on('removeListener', (event) => {
-        logger.debug(`The event ${event} has been removed.`);
-      });
-    }
+    this.pauseOnEmpty = client.config.get('PAUSE_ON_EMPTY');
   }
 
-  initialize() {
+  async initialize(channelID) {
     if (!channelID) {
       throw new MissingArgumentError('channelID is required in bot config!');
     }
 
-    this.client.updatePresence('◼ Nothing to play');
+    await this.client.presenceManager.update('◼ Nothing to play');
 
-    return this.client.channels.fetch(channelID)
-      .then((channel) => {
-        if (!channel.joinable) {
-          throw new VoiceChannelError("I don't have enough permissions to join the configured voice channel!");
-        }
+    try {
+      const channel = await this.client.channels.fetch(channelID);
 
-        return this.updateChannel(channel);
-      })
-      .catch((error) => {
-        if (error instanceof VoiceChannelError) {
-          throw error;
-        }
-        
-        if (error === 'DiscordAPIError: Unknown Channel') {
-          throw new VoiceChannelError('The channel I tried to join does not exist. Please check the channelID set up in your bot config.');
-        }
+      if (!channel.joinable) {
+        throw new VoiceChannelError("I don't have enough permissions to join the configured voice channel!");
+      }
 
-        logger.fatal(error);
-        throw new VoiceChannelError('Something went wrong when trying to look for the channel I was supposed to join.');
-      });
+      return this.updateChannel(channel);
+    } catch (error) {
+      if (error instanceof VoiceChannelError) {
+        throw error;
+      }
+      
+      if (error === 'DiscordAPIError: Unknown Channel') {
+        throw new VoiceChannelError('The channel I tried to join does not exist. Please check the channelID set up in your bot config.');
+      }
+
+      throw new VoiceChannelError('Something went wrong when trying to look for the channel I was supposed to join.');
+    }
   }
 
-  updateChannel(channel) {
+  async updateChannel(channel) {
     logger.info(`Joined ${channel.name} in ${channel.guild.name}.`);
     this.channel = channel;
 
     if (!this.connection) {
-      return channel.join()
-        .then((connection) => {
-          this.connection = connection;
-          this.updateListeners();
+      this.connection = await channel.join();
+      this.updateListeners();
 
-          if (!this.dispatcher) {
-            this.play();
-          }
-        })
-        .catch((error) => {
-          logger.error(error);
-        });
+      if (!this.dispatcher) {
+        this.play();
+      }
     }
   }
 
-  play() {
+  async play() {
+    if (!this.connection) {
+      return;
+    }
+
     const url = this.queue.getNext();
-    const provider = ProviderFactory.getInstance(url);
+    const provider = this.providerFactory.getInstance(url);
 
-    return provider.createStream(url)
-      .then((stream) => {
-        // Something happened while creating the stream.
-        if (!stream) {
-          this.play();
-        }
+    this.stream = await provider.createStream(url);
 
-        this.dispatcher = this.connection.play(stream);
-        this.currentSong = stream.info;
+    // If a provider encounters an error, stream will be null.
+    if (!this.stream) {
+      this.play();
+    }
 
-        if (!this.updateDispatcherStatus()) {
-          this.updatePresenceWithSong();
-        }
+    this.dispatcher = this.connection.play(this.stream);
+    this.currentSong = this.stream.info;
 
-        this.removeAllListeners('skip');
+    this.updateDispatcherStatus();
 
-        // Skip has been emitted.
-        this.once('skip', (reason) => {
-          stream.destroy();
-          logger.info(reason || `(${this.currentSong.source}): ${this.currentSong.title} has been skipped.`);
-          this.play();
-        });
+    this.dispatcher.on('start', () => {
+      logger.info(`Playing (${this.currentSong.source}): ${this.currentSong.title} for ${this.listeners} user(s) in ${this.channel.name}.`);
+    });
 
-        // Song started
-        this.dispatcher.on('start', () => {
-          logger.info(`Playing (${this.currentSong.source}): ${this.currentSong.title} for ${this.listeners} user(s) in ${this.channel.name}.`);
-        });
+    this.dispatcher.on('finish', () => {
+      this.play();
+    });
 
-        // Song ended.
-        this.dispatcher.on('speaking', (speaking) => {
-          if (!speaking && !this.paused) {
-            this.play();
-          }
-        });
+    this.dispatcher.on('error', (error) => {
+      logger.error(error);
+      this.play();
+    });
 
-        // Error while playing song.
-        this.dispatcher.on('error', (error) => {
-          logger.error(error);
-          this.play();
-        });
-
-        // Show debug messages for dispatch.
-        if (this.client.debugEnabled) {
-          this.dispatcher.on('debug', (info) => {
-            logger.debug(info);
-          });
-        }
-      })
-      .catch((error) => {
-        logger.error(error);
-        this.play();
+    if (this.client.debug) {
+      this.dispatcher.on('debug', (info) => {
+        logger.debug(info);
       });
+    }
+  }
+
+  skipCurrentSong(reason) {
+    this.stream.destroy();
+    logger.info(reason || `(${this.currentSong.source}): ${this.currentSong.title} has been skipped.`);
+    this.play();
   }
 
   updateListeners() {
@@ -144,8 +122,8 @@ class Player extends EventEmitter {
   }
 
   updatePresenceWithSong() {
-    const icon = this.paused ? '❙ ❙' : '►';
-    return this.client.updatePresence(`${icon} ${this.currentSong.title}`);
+    const icon = this.dispatcher.paused ? '❙ ❙' : '►';
+    return this.client.presenceManager.update(`${icon} ${this.currentSong.title}`);
   }
 
   updateDispatcherStatus() {
@@ -161,45 +139,39 @@ class Player extends EventEmitter {
   }
 
   resumeDispatcher() {
-    if (!this.paused) {
-      return false;
-    }
-
-    if (this.isStreamExpired()) {
-      this.emit('skip', 'Stream has expired, skipping...');
-      this.paused = false;
+    if (!this.dispatcher.paused) {
       return;
     }
 
-    this.paused = false;
+    if (this.isStreamExpired()) {
+      this.skipCurrentSong('Stream has expired, skipping...');
+      return;
+    }
+
     this.dispatcher.resume();
-    this.updatePresenceWithSong();
     logger.info('Music has been resumed.');
-    return true;
+    this.updatePresenceWithSong();
   }
 
   pauseDispatcher() {
-    if (this.paused || !pauseOnEmpty) {
-      return false;
+    if (this.dispatcher.paused || !this.pauseOnEmpty) {
+      return;
     }
 
-    this.lastPauseTimestamp = Date.now();
-    this.paused = true;
     this.dispatcher.pause();
-    this.updatePresenceWithSong();
     logger.info('Music has been paused because nobody is in my channel.');
-    return true;
+    this.updatePresenceWithSong();
   }
 
   isStreamExpired() {
-    if (!this.lastPauseTimestamp) {
+    if (!this.dispatcher) {
       return false;
     }
 
-    return Date.now() - this.lastPauseTimestamp > Player.STREAM_MAX_AGE;
+    return this.dispatcher.pausedTime > Player.STREAM_MAX_AGE;
   }
 }
 
 Player.STREAM_MAX_AGE = 7200000; // TWO HOURS
 
-export default Player;
+module.exports = Player;

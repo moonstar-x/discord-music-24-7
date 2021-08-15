@@ -1,24 +1,20 @@
 /* eslint-disable max-lines */
-/* eslint-disable max-statements */
-import fs from 'fs';
-import logger from '@greencoast/logger';
-import EventEmitter from 'events';
-import Player from '../../src/classes/Player';
-import { clientMock, channelMock, connectionMock, dispatcherMock } from '../../__mocks__/discordMocks';
-import Queue from '../../src/classes/Queue';
-import MissingArgumentError from '../../src/classes/errors/MissingArgumentError';
-import VoiceChannelError from '../../src/classes/errors/VoiceChannelError';
-import * as settings from '../../src/common/settings';
+const fs = require('fs');
+const logger = require('@greencoast/logger');
+const Player = require('../../src/classes/Player');
+const { clientMock, channelMock, connectionMock, dispatcherMock } = require('../../__mocks__/discordMocks');
+const MissingArgumentError = require('../../src/classes/errors/MissingArgumentError');
+const VoiceChannelError = require('../../src/classes/errors/VoiceChannelError');
 
 jest.mock('fs');
-jest.mock('../../src/classes/providers/ProviderFactory', () => ({
-  getInstance: jest.fn(() => ({ createStream: jest.fn(() => Promise.resolve({ info: 'song' })) }))
-}));
+jest.mock('../../src/classes/providers/ProviderFactory', () =>
+  class {
+    constructor() {
+      this.getInstance = jest.fn(() => ({ createStream: jest.fn(() => Promise.resolve({ info: 'song' })) }));
+    }
+  }
+);
 jest.mock('@greencoast/logger');
-
-const dateNowSpy = jest.spyOn(Date, 'now');
-const timestampMock = 1609184342966;
-dateNowSpy.mockReturnValue(timestampMock);
 
 const mockedQueue = [
   'this is no url',
@@ -27,7 +23,8 @@ const mockedQueue = [
 ];
 
 const currentSong = {
-  title: 'Song title'
+  title: 'Song title',
+  source: 'SOURCE'
 };
 
 describe('Classes - Player', () => {
@@ -35,7 +32,6 @@ describe('Classes - Player', () => {
   let playSpy;
 
   beforeAll(() => {
-    settings.channelID = '123';
     fs.readFileSync.mockReturnValue(mockedQueue.join('\n'));
   });
 
@@ -44,69 +40,28 @@ describe('Classes - Player', () => {
     playSpy = jest.spyOn(player, 'play');
     playSpy.mockReturnValue(null);
 
-    clientMock.updatePresence.mockClear();
+    clientMock.presenceManager.update.mockClear();
     logger.info.mockClear();
     channelMock.join.mockClear();
     dispatcherMock.resume.mockClear();
     dispatcherMock.pause.mockClear();
   });
 
-  it('should be instance of EventEmitter.', () => {
-    expect(player).toBeInstanceOf(EventEmitter);
-  });
-
-  it('should contain a client property.', () => {
-    expect(player.client).toBe(clientMock);
-  });
-
-  it('should contain a queue property.', () => {
-    expect(player.queue).toBeInstanceOf(Queue);
-  });
-
-  it('should contain a channel property.', () => {
-    expect(player).toHaveProperty('channel');
-  });
-
-  it('should contain a connection property.', () => {
-    expect(player).toHaveProperty('connection');
-  });
-
-  it('should contain a dispatcher property.', () => {
-    expect(player).toHaveProperty('dispatcher');
-  });
-
-  it('should contain a paused property.', () => {
-    expect(player).toHaveProperty('paused');
-  });
-
-  it('should contain a currentSong property.', () => {
-    expect(player).toHaveProperty('currentSong');
-  });
-
-  it('should contain a listeners property.', () => {
-    expect(player).toHaveProperty('listeners');
-  });
-
-  it('should contain a lastPauseTimestamp property.', () => {
-    expect(player).toHaveProperty('lastPauseTimestamp');
-  });
-
   describe('initialize()', () => {
-    it('should throw MissingArgumentError if no channelID is in settings.', () => {
-      settings.channelID = null;
+    it('should reject MissingArgumentError if no channelID is passed.', () => {
+      expect.assertions(1);
 
-      expect(() => {
-        player.initialize();
-      }).toThrow(MissingArgumentError);
-
-      settings.channelID = '123';
+      return player.initialize(null)
+        .catch((error) => {
+          expect(error).toBeInstanceOf(MissingArgumentError);
+        });
     });
 
-    it('should call client.updatePresence with correct status.', () => {
-      return player.initialize()
+    it('should update presence with correct status.', () => {
+      return player.initialize('123')
         .then(() => {
-          expect(clientMock.updatePresence).toHaveBeenCalledTimes(1);
-          expect(clientMock.updatePresence).toHaveBeenCalledWith('◼ Nothing to play');
+          expect(clientMock.presenceManager.update).toHaveBeenCalledTimes(1);
+          expect(clientMock.presenceManager.update).toHaveBeenCalledWith('◼ Nothing to play');
         });
     });
 
@@ -114,10 +69,10 @@ describe('Classes - Player', () => {
       clientMock.channels.fetch.mockResolvedValueOnce({ ...channelMock, joinable: false });
       expect.assertions(2);
       
-      return player.initialize()
+      return player.initialize(channelMock.id)
         .catch((error) => {
           expect(error).toBeInstanceOf(VoiceChannelError);
-          expect(error.message).toBe("I don't have enough permissions to join the configured voice channel!");
+          expect(error.message).toContain('permissions');
         });
     });
 
@@ -127,10 +82,10 @@ describe('Classes - Player', () => {
       clientMock.channels.fetch.mockRejectedValueOnce(notFoundError);
       expect.assertions(2);
       
-      return player.initialize()
+      return player.initialize(channelMock.id)
         .catch((error) => {
           expect(error).toBeInstanceOf(VoiceChannelError);
-          expect(error.message).toBe('The channel I tried to join does not exist. Please check the channelID set up in your bot config.');
+          expect(error.message).toContain('does not exist');
         });
     });
 
@@ -138,10 +93,10 @@ describe('Classes - Player', () => {
       clientMock.channels.fetch.mockRejectedValueOnce(new Error('Oops'));
       expect.assertions(2);
       
-      return player.initialize()
+      return player.initialize(channelMock.id)
         .catch((error) => {
           expect(error).toBeInstanceOf(VoiceChannelError);
-          expect(error.message).toBe('Something went wrong when trying to look for the channel I was supposed to join.');
+          expect(error.message).toContain('Something went wrong');
         });
     });
   });
@@ -150,7 +105,7 @@ describe('Classes - Player', () => {
     it('should log the channel update.', () => {
       player.updateChannel(channelMock);
       expect(logger.info).toHaveBeenCalledTimes(1);
-      expect(logger.info).toHaveBeenCalledWith(`Joined ${channelMock.name} in ${channelMock.guild.name}.`);
+      expect(logger.info.mock.calls[0][0]).toContain(channelMock.name);
     });
 
     it('should update the channel property.', () => {
@@ -164,18 +119,9 @@ describe('Classes - Player', () => {
       expect(channelMock.join).not.toHaveBeenCalled();
     });
 
-    it('should return undefined if a connection is present.', () => {
-      player.connection = 'connection';
-      expect(player.updateChannel(channelMock)).toBeUndefined();
-    });
-
     it('should join the channel if no connection is present.', () => {
       player.updateChannel(channelMock);
       expect(channelMock.join).toHaveBeenCalledTimes(1);
-    });
-
-    it('should return a Promise if no connection is present.', () => {
-      expect(player.updateChannel(channelMock)).toBeInstanceOf(Promise);
     });
 
     it('should update the connection if joining.', () => {
@@ -211,6 +157,38 @@ describe('Classes - Player', () => {
     });
   });
 
+  describe('skipCurrentSong()', () => {
+    beforeEach(() => {
+      player.stream = {
+        destroy: jest.fn()
+      };
+    });
+
+    it('should destroy the current stream.', () => {
+      player.skipCurrentSong('reason');
+      expect(player.stream.destroy).toHaveBeenCalled();
+    });
+
+    it('should log the skip reason.', () => {
+      player.skipCurrentSong('reason');
+      expect(logger.info).toHaveBeenCalledTimes(1);
+      expect(logger.info).toHaveBeenCalledWith('reason');
+    });
+
+    it('should log the default reason if no reason is passed.', () => {
+      player.currentSong = currentSong;
+      player.skipCurrentSong();
+
+      expect(logger.info).toHaveBeenCalledTimes(1);
+      expect(logger.info.mock.calls[0][0]).toContain('has been skipped');
+    });
+
+    it('should call play.', () => {
+      player.skipCurrentSong('reason');
+      expect(playSpy).toBeCalledTimes(1);
+    });
+  });
+
   describe('updateListeners()', () => {
     it('should update the listeners property with the amount of users in VC.', () => {
       player.channel = channelMock;
@@ -226,17 +204,17 @@ describe('Classes - Player', () => {
     });
 
     it('should update presence with correct status if player is paused.', () => {
-      player.paused = true;
+      player.dispatcher = { paused: true };
       player.updatePresenceWithSong();
-      expect(clientMock.updatePresence).toBeCalledTimes(1);
-      expect(clientMock.updatePresence).toBeCalledWith(`❙ ❙ ${currentSong.title}`);
+      expect(clientMock.presenceManager.update).toBeCalledTimes(1);
+      expect(clientMock.presenceManager.update).toBeCalledWith(`❙ ❙ ${currentSong.title}`);
     });
 
     it('should update presence with correct status if player is not paused.', () => {
-      player.paused = false;
+      player.dispatcher = { paused: false };
       player.updatePresenceWithSong();
-      expect(clientMock.updatePresence).toBeCalledTimes(1);
-      expect(clientMock.updatePresence).toBeCalledWith(`► ${currentSong.title}`);
+      expect(clientMock.presenceManager.update).toBeCalledTimes(1);
+      expect(clientMock.presenceManager.update).toBeCalledWith(`► ${currentSong.title}`);
     });
   });
 
@@ -277,25 +255,18 @@ describe('Classes - Player', () => {
       player.dispatcher = dispatcherMock;
       player.currentSong = currentSong;
       player.channel = channelMock;
+      player.stream = {
+        destroy: jest.fn()
+      };
     });
 
     describe('Currently paused.', () => {
       let isStreamExpiredSpy;
 
       beforeEach(() => {
-        player.paused = true;
+        dispatcherMock.paused = true;
         isStreamExpiredSpy = jest.spyOn(player, 'isStreamExpired');
         isStreamExpiredSpy.mockReturnValue(false);
-      });
-
-      it('should return true.', () => {
-        expect(player.resumeDispatcher()).toBe(true);
-      });
-
-      it('should update the paused property.', () => {
-        player.resumeDispatcher();
-
-        expect(player.paused).toBe(false);
       });
 
       it('should resume the dispatcher.', () => {
@@ -307,41 +278,36 @@ describe('Classes - Player', () => {
       it('should update the presence.', () => {
         player.resumeDispatcher();
 
-        expect(clientMock.updatePresence).toHaveBeenCalledTimes(1);
-        expect(clientMock.updatePresence).toHaveBeenCalledWith(`► ${currentSong.title}`);
+        expect(clientMock.presenceManager.update).toHaveBeenCalledTimes(1);
+        expect(clientMock.presenceManager.update).toHaveBeenCalledWith(`► ${currentSong.title}`);
       });
 
       it('should log that the music resumed.', () => {
         player.resumeDispatcher();
 
         expect(logger.info).toHaveBeenCalledTimes(1);
-        expect(logger.info).toHaveBeenCalledWith('Music has been resumed.');
+        expect(logger.info.mock.calls[0][0]).toContain('resumed');
       });
 
-      it('should emit the skip event if the stream is expired.', () => {
+      it('should skip the current song if the stream is expired.', () => {
         isStreamExpiredSpy.mockReturnValueOnce(true);
-        const emitSpy = jest.spyOn(player, 'emit');
+        const skipCurrentSongSpy = jest.spyOn(player, 'skipCurrentSong');
         player.resumeDispatcher();
 
-        expect(emitSpy).toHaveBeenCalledTimes(1);
-        expect(emitSpy).toHaveBeenCalledWith('skip', 'Stream has expired, skipping...');
-      });
-
-      it('should update the paused property if the stream is expired.', () => {
-        isStreamExpiredSpy.mockReturnValueOnce(true);
-        player.resumeDispatcher();
-
-        expect(player.paused).toBe(false);
+        expect(skipCurrentSongSpy).toHaveBeenCalledTimes(1);
+        expect(skipCurrentSongSpy).toHaveBeenCalledWith('Stream has expired, skipping...');
       });
     });
 
     describe('Currently playing.', () => {
       beforeEach(() => {
-        player.paused = false;
+        player.dispatcher.paused = false;
       });
 
-      it('should return false.', () => {
-        expect(player.resumeDispatcher()).toBe(false);
+      it('should not resume the dispatcher.', () => {
+        player.resumeDispatcher();
+
+        expect(dispatcherMock.resume).not.toHaveBeenCalled();
       });
     });
   });
@@ -355,45 +321,27 @@ describe('Classes - Player', () => {
 
     describe('Currently paused.', () => {
       beforeEach(() => {
-        player.paused = true;
+        player.dispatcher.paused = true;
       });
 
-      it('should return false.', () => {
-        expect(player.pauseDispatcher()).toBe(false);
-      });
+      it('should not pause the dispatcher.', () => {
+        player.pauseDispatcher();
 
-      it('should return false if pauseOnEmpty is false.', () => {
-        settings.pauseOnEmpty = false;
-        expect(player.pauseDispatcher()).toBe(false);
-        settings.pauseOnEmpty = true;
+        expect(dispatcherMock.pause).not.toHaveBeenCalled();
       });
     });
 
     describe('Currently playing.', () => {
       beforeEach(() => {
-        player.paused = false;
+        player.dispatcher.paused = false;
+        player.pauseOnEmpty = true;
       });
 
-      it('should return true.', () => {
-        expect(player.pauseDispatcher()).toBe(true);
-      });
-
-      it('should return false if pauseOnEmpty is false.', () => {
-        settings.pauseOnEmpty = false;
-        expect(player.pauseDispatcher()).toBe(false);
-        settings.pauseOnEmpty = true;
-      });
-
-      it('should update the paused property.', () => {
+      it('should not pause the dispatcher if pauseOnEmpty is false.', () => {
+        player.pauseOnEmpty = false;
         player.pauseDispatcher();
 
-        expect(player.paused).toBe(true);
-      });
-
-      it('should update the lastPauseTimestamp property.', () => {
-        player.pauseDispatcher();
-
-        expect(player.lastPauseTimestamp).toBe(timestampMock);
+        expect(dispatcherMock.pause).not.toHaveBeenCalled();
       });
 
       it('should pause the dispatcher.', () => {
@@ -405,15 +353,15 @@ describe('Classes - Player', () => {
       it('should update the presence.', () => {
         player.pauseDispatcher();
 
-        expect(clientMock.updatePresence).toHaveBeenCalledTimes(1);
-        expect(clientMock.updatePresence).toHaveBeenCalledWith(`❙ ❙ ${currentSong.title}`);
+        expect(clientMock.presenceManager.update).toHaveBeenCalledTimes(1);
+        expect(clientMock.presenceManager.update).toHaveBeenCalledWith(`❙ ❙ ${currentSong.title}`);
       });
 
       it('should log that the music paused.', () => {
         player.pauseDispatcher();
 
         expect(logger.info).toHaveBeenCalledTimes(1);
-        expect(logger.info).toHaveBeenCalledWith('Music has been paused because nobody is in my channel.');
+        expect(logger.info.mock.calls[0][0]).toContain('paused');
       });
     });
   });
@@ -426,24 +374,27 @@ describe('Classes - Player', () => {
       player.paused = false;
     });
 
-    it('should return false if no lastPauseTimestamp has been set previously.', () => {
+    it('should return false if no there is no dispatcher.', () => {
+      player.dispatcher = null;
       expect(player.isStreamExpired()).toBe(false);
     });
 
-    it('should return false if the lastPauseTimestamp is still in the max age time frame.', () => {
-      player.pauseDispatcher();
-
-      dateNowSpy.mockReturnValueOnce(timestampMock + 5000);
+    it('should return false if the paused time is still in the max age time frame.', () => {
+      const oldPausedTime = dispatcherMock.pausedTime;
+      dispatcherMock.pausedTime = Player.STREAM_MAX_AGE - 1000;
 
       expect(player.isStreamExpired()).toBe(false);
+
+      dispatcherMock.pausedTime = oldPausedTime;
     });
 
-    it('should return true if the lastPauseTimestamp is out of the max age time frame.', () => {
-      player.pauseDispatcher();
-
-      dateNowSpy.mockReturnValueOnce(timestampMock + Player.STREAM_MAX_AGE + 5000);
+    it('should return true if the paused time is out of the max age time frame.', () => {
+      const oldPausedTime = dispatcherMock.pausedTime;
+      dispatcherMock.pausedTime = Player.STREAM_MAX_AGE + 1000;
 
       expect(player.isStreamExpired()).toBe(true);
+
+      dispatcherMock.pausedTime = oldPausedTime;
     });
   });
 

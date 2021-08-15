@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import { Readable } from 'stream';
+const { Readable } = require('stream');
 
 const infoMock = {
   videoDetails: {
@@ -7,7 +7,7 @@ const infoMock = {
   }
 };
 
-export default {
+module.exports = {
   getInfo: jest.fn((url, options) => Promise.resolve(infoMock)),
   downloadFromInfo: jest.fn((url, options) => new Readable())
 };

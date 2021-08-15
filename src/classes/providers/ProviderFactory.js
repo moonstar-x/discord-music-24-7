@@ -1,28 +1,30 @@
-import YouTubeProvider from '../providers/YouTubeProvider';
-import SoundCloudProvider from '../providers/SoundCloudProvider';
-import LocalProvider from '../providers/LocalProvider';
-import URLError from '../errors/URLError';
-
-const youtubeProvider = new YouTubeProvider();
-const soundCloudProvider = new SoundCloudProvider();
-const localProvider = new LocalProvider();
+const YouTubeProvider = require('../providers/YouTubeProvider');
+const SoundCloudProvider = require('../providers/SoundCloudProvider');
+const LocalProvider = require('../providers/LocalProvider');
+const URLError = require('../errors/URLError');
 
 class ProviderFactory {
-  static getInstance(url) {
+  constructor(options = {}) {
+    this._youtubeProvider = new YouTubeProvider(options.youtubeCookie);
+    this._soundCloudProvider = new SoundCloudProvider(options.soundcloudClientID);
+    this._localProvider = new LocalProvider();
+  }
+
+  getInstance(url) {
     if (url.includes('youtube.com') || url.includes('youtu.be')) {
-      return youtubeProvider;
+      return this._youtubeProvider;
     }
 
     if (url.includes('soundcloud.com')) {
-      return soundCloudProvider;
+      return this._soundCloudProvider;
     }
 
     if (url.startsWith('local:')) {
-      return localProvider;
+      return this._localProvider;
     }
     
     throw new URLError(`Invalid URL in queue: ${url}`);
   }
 }
 
-export default ProviderFactory;
+module.exports = ProviderFactory;

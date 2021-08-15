@@ -1,45 +1,57 @@
-import EventEmitter from 'events';
-
-export const userMock = {
-  username: 'username'
+const userMock = {
+  username: 'username',
+  id: '123'
 };
 
-export const commandMock = {
+const commandMock = {
   name: 'command',
   description: 'description'
 };
 
-export const commandGroupMock = {
+const commandGroupMock = {
   name: 'group',
   commands: [commandMock, commandMock]
 };
 
-export const memberMock = {
-  displayName: 'display name'
+const memberMock = {
+  displayName: 'display name',
+  voice: {
+    channel: {
+      id: '123'
+    }
+  }
 };
 
-export const guildMock = {
+const guildMock = {
   name: 'guild name'
 };
 
-export const dispatcherMock = {
-  resume: jest.fn(),
-  pause: jest.fn()
+const dispatcherMock = {
+  resume: jest.fn(function() {
+    this.paused = false;
+  }),
+  pause: jest.fn(function() {
+    this.paused = true;
+  }),
+  paused: false,
+  pausedTime: 1000
 };
 
-export const connectionMock = {
+const connectionMock = {
   play: jest.fn(() => dispatcherMock)
 };
 
-export const channelMock = {
+const channelMock = {
   joinable: true,
   name: 'channel',
+  id: 'channel_id',
   guild: guildMock,
   join: jest.fn(() => Promise.resolve(connectionMock)),
+  send: jest.fn(),
   members: [memberMock, memberMock]
 };
 
-export const clientMock = {
+const clientMock = {
   commandPrefix: '!',
   handleCommandError: jest.fn(),
   registry: {
@@ -48,16 +60,40 @@ export const clientMock = {
   channels: {
     fetch: jest.fn(() => Promise.resolve(channelMock))
   },
-  updatePresence: jest.fn(),
-  player: new EventEmitter()
+  player: {
+    channel: channelMock,
+    skipCurrentSong: jest.fn(),
+    updateChannel: jest.fn(),
+    updateListeners: jest.fn(),
+    updateDispatcherStatus: jest.fn()
+  },
+  user: userMock,
+  config: {
+    get: jest.fn()
+  },
+  presenceManager: {
+    update: jest.fn()
+  }
 };
 
-export const messageMock = {
+const messageMock = {
   reply: jest.fn(),
   guild: guildMock,
   content: 'message',
   member: memberMock,
   author: userMock,
-  embed: jest.fn(),
-  say: jest.fn()
+  channel: channelMock
+};
+
+module.exports = {
+  userMock,
+  commandMock,
+  commandGroupMock,
+  memberMock,
+  guildMock,
+  dispatcherMock,
+  connectionMock,
+  channelMock,
+  clientMock,
+  messageMock
 };

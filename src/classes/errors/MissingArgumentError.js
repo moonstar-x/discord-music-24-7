@@ -6,4 +6,4 @@ class MissingArgumentError extends Error {
   }
 }
 
-export default MissingArgumentError;
+module.exports = MissingArgumentError;
