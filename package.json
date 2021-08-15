@@ -1,6 +1,6 @@
 {
   "name": "discord-music-24-7",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "description": "A 24/7 music bot for Discord.",
   "main": "./src/app.js",
   "scripts": {
