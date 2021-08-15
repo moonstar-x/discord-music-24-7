@@ -1,4 +1,3 @@
-/* eslint-disable max-statements */
 const logger = require('@greencoast/logger');
 const Queue = require('./Queue');
 const DataFolderManager = require('./DataFolderManager');

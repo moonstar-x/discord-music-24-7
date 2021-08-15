@@ -1,4 +1,3 @@
-/* eslint-disable max-statements */
 const path = require('path');
 const logger = require('@greencoast/logger');
 const { ExtendedClient, ConfigProvider } = require('@greencoast/discord.js-extended');

@@ -1,4 +1,3 @@
-/* eslint-disable no-new */
 const fs = require('fs');
 const Queue = require('../../src/classes/Queue');
 const DataFolderManager = require('../../src/classes/DataFolderManager');
