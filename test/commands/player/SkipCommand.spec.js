@@ -23,14 +23,14 @@ describe('Commands - Skip', () => {
   });
 
   it('should skip the song.', () => {
-    const playerSpy = jest.spyOn(clientMock.player, 'skipCurrentSong');
-
+    clientMock.player.channel.id = messageMock.member.voice.channel.id;
     command.run(messageMock);
 
-    expect(playerSpy).toHaveBeenCalledTimes(1);
+    expect(clientMock.player.skipCurrentSong).toHaveBeenCalledTimes(1);
   });
 
   it('should reply that the song has been skipped.', () => {
+    clientMock.player.channel.id = messageMock.member.voice.channel.id;
     command.run(messageMock);
 
     expect(messageMock.channel.send).toHaveBeenCalledTimes(1);
