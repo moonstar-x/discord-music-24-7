@@ -1,7 +1,6 @@
-const { EventEmitter } = require('events');
-
 const userMock = {
-  username: 'username'
+  username: 'username',
+  id: '123'
 };
 
 const commandMock = {
@@ -39,7 +38,7 @@ const connectionMock = {
 const channelMock = {
   joinable: true,
   name: 'channel',
-  id: '123',
+  id: 'channel_id',
   guild: guildMock,
   join: jest.fn(() => Promise.resolve(connectionMock)),
   send: jest.fn(),
@@ -58,8 +57,12 @@ const clientMock = {
   updatePresence: jest.fn(),
   player: {
     channel: channelMock,
-    skipCurrentSong: jest.fn()
-  }
+    skipCurrentSong: jest.fn(),
+    updateChannel: jest.fn(),
+    updateListeners: jest.fn(),
+    updateDispatcherStatus: jest.fn()
+  },
+  user: userMock
 };
 
 const messageMock = {
