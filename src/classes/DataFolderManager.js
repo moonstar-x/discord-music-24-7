@@ -3,10 +3,22 @@ const fs = require('fs');
 const logger = require('@greencoast/logger');
 
 class DataFolderManager {
-  constructor(dataPath = DataFolderManager.DEFAULT_DATA_PATH) {
-    this.dataPath = dataPath;
-    this.queuePath = path.join(dataPath, 'queue.txt');
-    this.localMusicPath = path.join(dataPath, 'local-music');
+  constructor(options = {}) {
+    if (!options.dataPath) {
+      options.dataPath = DataFolderManager.DEFAULT_DATA_PATH;
+    }
+
+    if (!options.queueFile) {
+      options.queueFile = 'queue.txt';
+    }
+
+    if (!options.localMusicFolder) {
+      options.localMusicFolder = 'local-music';
+    }
+
+    this.dataPath = options.dataPath;
+    this.queuePath = path.join(this.dataPath, options.queueFile);
+    this.localMusicPath = path.join(this.dataPath, options.localMusicFolder);
 
     this.initialize();
   }
