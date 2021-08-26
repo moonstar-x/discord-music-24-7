@@ -61,4 +61,16 @@ describe('Classes - Queue', () => {
       }
     });
   });
+
+  describe('getSize()', () => {
+    it('should return the length of the queue.', () => {
+      expect(queue.getSize()).toBe(queue.queue.length);
+    });
+  });
+
+  describe('getCurrentIndex()', () => {
+    it('should return the currentIndex.', () => {
+      expect(queue.getCurrentIndex()).toBe(queue.currentIndex);
+    });
+  });
 });

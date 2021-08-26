@@ -39,6 +39,14 @@ class Queue {
 
     return this.queue[this.currentIndex++];
   }
+
+  getSize() {
+    return this.queue.length;
+  }
+
+  getCurrentIndex() {
+    return this.currentIndex;
+  }
 }
 
 module.exports = Queue;
