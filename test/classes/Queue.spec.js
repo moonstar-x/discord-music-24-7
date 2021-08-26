@@ -17,7 +17,9 @@ const mockedMusicDirectory = [
 ];
 
 describe('Classes - Queue', () => {
-  const dataFolderManager = new DataFolderManager('.');
+  const dataFolderManager = new DataFolderManager({
+    dataPath: '.'
+  });
   let queue;
 
   beforeAll(() => {
