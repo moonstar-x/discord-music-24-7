@@ -27,6 +27,7 @@ class Player {
     this.listeners = 0;
 
     this.pauseOnEmpty = client.config.get('PAUSE_ON_EMPTY');
+    this.playingStatus = client.config.get('PLAYING_STATUS');
   }
 
   async initialize(channelID) {
@@ -34,7 +35,7 @@ class Player {
       throw new MissingArgumentError('channelID is required in bot config!');
     }
 
-    await this.client.presenceManager.update('◼ Nothing to play');
+    await this.client.presenceManager.update('{status_icon} Nothing to play');
 
     try {
       const channel = await this.client.channels.fetch(channelID);
@@ -122,8 +123,7 @@ class Player {
   }
 
   updatePresenceWithSong() {
-    const icon = this.dispatcher.paused ? '❙ ❙' : '►';
-    return this.client.presenceManager.update(`${icon} ${this.currentSong.title}`);
+    return this.client.presenceManager.update(this.playingStatus);
   }
 
   updateDispatcherStatus() {

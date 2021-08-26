@@ -61,7 +61,6 @@ describe('Classes - Player', () => {
       return player.initialize('123')
         .then(() => {
           expect(clientMock.presenceManager.update).toHaveBeenCalledTimes(1);
-          expect(clientMock.presenceManager.update).toHaveBeenCalledWith('◼ Nothing to play');
         });
     });
 
@@ -199,22 +198,9 @@ describe('Classes - Player', () => {
   });
 
   describe('updatePresenceWithSong()', () => {
-    beforeEach(() => {
-      player.currentSong = currentSong;
-    });
-
-    it('should update presence with correct status if player is paused.', () => {
-      player.dispatcher = { paused: true };
+    it('should update the presence.', () => {
       player.updatePresenceWithSong();
       expect(clientMock.presenceManager.update).toBeCalledTimes(1);
-      expect(clientMock.presenceManager.update).toBeCalledWith(`❙ ❙ ${currentSong.title}`);
-    });
-
-    it('should update presence with correct status if player is not paused.', () => {
-      player.dispatcher = { paused: false };
-      player.updatePresenceWithSong();
-      expect(clientMock.presenceManager.update).toBeCalledTimes(1);
-      expect(clientMock.presenceManager.update).toBeCalledWith(`► ${currentSong.title}`);
     });
   });
 
@@ -279,7 +265,6 @@ describe('Classes - Player', () => {
         player.resumeDispatcher();
 
         expect(clientMock.presenceManager.update).toHaveBeenCalledTimes(1);
-        expect(clientMock.presenceManager.update).toHaveBeenCalledWith(`► ${currentSong.title}`);
       });
 
       it('should log that the music resumed.', () => {
@@ -354,7 +339,6 @@ describe('Classes - Player', () => {
         player.pauseDispatcher();
 
         expect(clientMock.presenceManager.update).toHaveBeenCalledTimes(1);
-        expect(clientMock.presenceManager.update).toHaveBeenCalledWith(`❙ ❙ ${currentSong.title}`);
       });
 
       it('should log that the music paused.', () => {
