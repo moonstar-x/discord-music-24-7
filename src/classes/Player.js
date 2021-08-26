@@ -94,6 +94,7 @@ class Player {
 
     this.dispatcher.on('start', () => {
       logger.info(`Playing (${this.currentSong.source}): ${this.currentSong.title} for ${this.listeners} user(s) in ${this.channel.name}.`);
+      this.updatePresenceWithSong();
     });
 
     this.dispatcher.on('finish', () => {
