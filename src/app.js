@@ -4,6 +4,7 @@ const { ExtendedClient, ConfigProvider } = require('@greencoast/discord.js-exten
 const { ACTIVITY_TYPE } = require('./constants');
 const Player = require('./classes/Player');
 const VoiceStateUpdater = require('./classes/VoiceStateUpdater');
+const PlayerPresenceTemplater = require('./classes/presence/PlayerPresenceTemplater');
 
 const config = new ConfigProvider({
   env: process.env,
@@ -17,7 +18,8 @@ const config = new ConfigProvider({
     YOUTUBE_COOKIE: null,
     SHUFFLE: true,
     PAUSE_ON_EMPTY: true,
-    OWNER_REPORTING: false
+    OWNER_REPORTING: false,
+    PLAYING_STATUS: '{status_icon} {song_name}'
   },
   types: {
     TOKEN: 'string',
@@ -29,7 +31,8 @@ const config = new ConfigProvider({
     YOUTUBE_COOKIE: ['string', 'null'],
     SHUFFLE: 'boolean',
     PAUSE_ON_EMPTY: 'boolean',
-    OWNER_REPORTING: 'boolean'
+    OWNER_REPORTING: 'boolean',
+    PLAYING_STATUS: 'string'
   }
 });
 
@@ -47,6 +50,7 @@ const client = new ExtendedClient({
 
 client.player = new Player(client);
 client.voiceStateUpdater = new VoiceStateUpdater(client);
+client.presenceManager.templater = new PlayerPresenceTemplater(client.player);
 
 client
   .registerDefaultEvents()
