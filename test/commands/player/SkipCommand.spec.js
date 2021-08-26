@@ -11,6 +11,17 @@ describe('Commands - Skip', () => {
     command = new SkipCommand(clientMock);
   });
 
+  it('should reply if the author is not in any channel.', () => {
+    const oldChannel = { ...messageMock.member.voice.channel };
+    messageMock.member.voice.channel = null;
+
+    command.run(messageMock);
+
+    expect(messageMock.reply).toHaveBeenCalledTimes(1);
+
+    messageMock.member.voice.channel = oldChannel;
+  });
+
   it('should reply if the author is not in the same channel as player.', () => {
     const oldChannelID = clientMock.player.channel.id;
     clientMock.player.channel.id = 'not_same';

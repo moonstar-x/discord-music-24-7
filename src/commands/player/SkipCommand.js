@@ -13,7 +13,7 @@ class SkipCommand extends Command {
   }
 
   run(message) {
-    if (message.member.voice.channel.id !== this.client.player.channel.id) {
+    if (!message.member.voice.channel || message.member.voice.channel.id !== this.client.player.channel.id) {
       return message.reply(`You need to be in ${this.client.player.channel} in order to skip the current song.`);
     }
 
