@@ -19,7 +19,8 @@ const config = new ConfigProvider({
     SHUFFLE: true,
     PAUSE_ON_EMPTY: true,
     OWNER_REPORTING: false,
-    PLAYING_STATUS: '{status_icon} {song_name}'
+    PLAYING_STATUS: '{status_icon} {song_name}',
+    INTERMISSION_INTERVAL: null
   },
   types: {
     TOKEN: 'string',
@@ -32,7 +33,8 @@ const config = new ConfigProvider({
     SHUFFLE: 'boolean',
     PAUSE_ON_EMPTY: 'boolean',
     OWNER_REPORTING: 'boolean',
-    PLAYING_STATUS: 'string'
+    PLAYING_STATUS: 'string',
+    INTERMISSION_INTERVAL: ['number', 'null']
   }
 });
 

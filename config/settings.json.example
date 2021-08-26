@@ -9,5 +9,6 @@
   "owner_reporting": false,
   "soundcloud_client_id": "",
   "youtube_cookie": "",
-  "playing_status": "{status_icon} {song_name}"
+  "playing_status": "{status_icon} {song_name}",
+  "intermission_interval": null
 }
