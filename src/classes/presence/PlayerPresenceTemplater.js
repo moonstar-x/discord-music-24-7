@@ -60,7 +60,7 @@ class PlayerPresenceTemplater extends Templater {
   }
 
   getSongIndex() {
-    return this.player.queue.getCurrentIndex() + 1; // 1 indexed position.
+    return this.player.queue.getCurrentIndex();
   }
 
   getQueueSize() {

@@ -75,8 +75,8 @@ describe('Classes - Presence - PlayerPresenceTemplater', () => {
       expect(templater.get('status_icon')).toBe('►');
     });
 
-    it('should return the song index + 1 for key song_index.', () => {
-      expect(templater.get('song_index')).toBe(playerMock.queue.getCurrentIndex() + 1);
+    it('should return the song index for key song_index.', () => {
+      expect(templater.get('song_index')).toBe(playerMock.queue.getCurrentIndex());
     });
 
     it('should return the queue size for key queue_size.', () => {
