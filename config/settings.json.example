@@ -8,5 +8,7 @@
   "pause_on_empty": true,
   "owner_reporting": false,
   "soundcloud_client_id": "",
-  "youtube_cookie": ""
+  "youtube_cookie": "",
+  "playing_status": "{status_icon} {song_name}",
+  "intermission_interval": null
 }

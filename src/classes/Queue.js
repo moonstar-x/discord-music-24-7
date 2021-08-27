@@ -4,6 +4,8 @@ const LocalProvider = require('../classes/providers/LocalProvider');
 
 class Queue {
   constructor(dataFolderManager, options = {}) {
+    this.type = options.type || 'Music';
+
     this.queue = this.initializeQueue(dataFolderManager);
     this.currentIndex = 0;
 
@@ -26,7 +28,7 @@ class Queue {
     const queue = [...queueFromFile, ...localMusicQueue];
 
     if (queue.length < 1) {
-      throw new Error('Queue is empty! Please add music to the queue file or to the local music folder before starting the bot.');
+      throw new Error(`${this.type} queue is empty! Please add music to the queue file or to the local music folder before starting the bot.`);
     }
 
     return queue;
@@ -38,6 +40,14 @@ class Queue {
     }
 
     return this.queue[this.currentIndex++];
+  }
+
+  getSize() {
+    return this.queue.length;
+  }
+
+  getCurrentIndex() {
+    return this.currentIndex;
   }
 }
 

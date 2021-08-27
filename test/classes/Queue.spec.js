@@ -17,7 +17,9 @@ const mockedMusicDirectory = [
 ];
 
 describe('Classes - Queue', () => {
-  const dataFolderManager = new DataFolderManager('.');
+  const dataFolderManager = new DataFolderManager({
+    dataPath: '.'
+  });
   let queue;
 
   beforeAll(() => {
@@ -59,6 +61,18 @@ describe('Classes - Queue', () => {
 
         expect(next).toBe(queue.queue[i % queue.queue.length]);
       }
+    });
+  });
+
+  describe('getSize()', () => {
+    it('should return the length of the queue.', () => {
+      expect(queue.getSize()).toBe(queue.queue.length);
+    });
+  });
+
+  describe('getCurrentIndex()', () => {
+    it('should return the currentIndex.', () => {
+      expect(queue.getCurrentIndex()).toBe(queue.currentIndex);
     });
   });
 });

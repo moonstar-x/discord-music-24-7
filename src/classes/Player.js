@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 const logger = require('@greencoast/logger');
 const Queue = require('./Queue');
 const DataFolderManager = require('./DataFolderManager');
@@ -11,7 +12,8 @@ class Player {
 
     this.dataFolderManager = new DataFolderManager();
     this.queue = new Queue(this.dataFolderManager, {
-      shuffle: client.config.get('SHUFFLE')
+      shuffle: client.config.get('SHUFFLE'),
+      type: 'Music'
     });
     this.providerFactory = new ProviderFactory({
       youtubeCookie: client.config.get('YOUTUBE_COOKIE'),
@@ -25,8 +27,34 @@ class Player {
 
     this.currentSong = null;
     this.listeners = 0;
+    this.playCount = 0;
 
     this.pauseOnEmpty = client.config.get('PAUSE_ON_EMPTY');
+    this.playingStatus = client.config.get('PLAYING_STATUS');
+
+    this._initializeIntermission(client.config.get('INTERMISSION_INTERVAL'), client.config.get('SHUFFLE'));
+  }
+
+  _initializeIntermission(intermissionInterval, shuffle) {
+    this.intermissionInterval = intermissionInterval;
+
+    if (this.intermissionInterval !== null) {
+      if (this.intermissionInterval < 1) {
+        throw new Error('Intermission interval cannot be inferior to 1!');
+      }
+
+      this.intermissionDataFolderManager = new DataFolderManager({
+        queueFile: 'intermissions.txt',
+        localMusicFolder: 'local-intermissions'
+      });
+      this.intermissionQueue = new Queue(this.intermissionDataFolderManager, {
+        shuffle,
+        type: 'Intermission'
+      });
+    } else {
+      this.intermissionDataFolderManager = null;
+      this.intermissionQueue = null;
+    }
   }
 
   async initialize(channelID) {
@@ -34,7 +62,7 @@ class Player {
       throw new MissingArgumentError('channelID is required in bot config!');
     }
 
-    await this.client.presenceManager.update('◼ Nothing to play');
+    await this.client.presenceManager.update('{status_icon} Nothing to play');
 
     try {
       const channel = await this.client.channels.fetch(channelID);
@@ -71,15 +99,22 @@ class Player {
     }
   }
 
+  resolveStream() {
+    const url = this.intermissionInterval && this.playCount > 0 && this.playCount % (this.intermissionInterval + 1) === 0 ?
+      this.intermissionQueue.getNext() :
+      this.queue.getNext();
+    
+    const provider = this.providerFactory.getInstance(url);
+
+    return provider.createStream(url);
+  }
+
   async play() {
     if (!this.connection) {
       return;
     }
 
-    const url = this.queue.getNext();
-    const provider = this.providerFactory.getInstance(url);
-
-    this.stream = await provider.createStream(url);
+    this.stream = await this.resolveStream();
 
     // If a provider encounters an error, stream will be null.
     if (!this.stream) {
@@ -89,10 +124,10 @@ class Player {
     this.dispatcher = this.connection.play(this.stream);
     this.currentSong = this.stream.info;
 
-    this.updateDispatcherStatus();
-
     this.dispatcher.on('start', () => {
       logger.info(`Playing (${this.currentSong.source}): ${this.currentSong.title} for ${this.listeners} user(s) in ${this.channel.name}.`);
+      this.playCount++;
+      this.updatePresenceWithSong();
     });
 
     this.dispatcher.on('finish', () => {
@@ -122,8 +157,7 @@ class Player {
   }
 
   updatePresenceWithSong() {
-    const icon = this.dispatcher.paused ? '❙ ❙' : '►';
-    return this.client.presenceManager.update(`${icon} ${this.currentSong.title}`);
+    return this.client.presenceManager.update(this.playingStatus);
   }
 
   updateDispatcherStatus() {

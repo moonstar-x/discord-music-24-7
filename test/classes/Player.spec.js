@@ -1,8 +1,12 @@
+/* eslint-disable max-statements */
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable max-lines */
 const fs = require('fs');
 const logger = require('@greencoast/logger');
 const Player = require('../../src/classes/Player');
 const { clientMock, channelMock, connectionMock, dispatcherMock } = require('../../__mocks__/discordMocks');
+const Queue = require('../../src/classes/Queue');
+const DataFolderManager = require('../../src/classes/DataFolderManager');
 const MissingArgumentError = require('../../src/classes/errors/MissingArgumentError');
 const VoiceChannelError = require('../../src/classes/errors/VoiceChannelError');
 
@@ -47,6 +51,33 @@ describe('Classes - Player', () => {
     dispatcherMock.pause.mockClear();
   });
 
+  describe('_initializeIntermission()', () => {
+    it('should set intermission properties to null if intermissionInterval is null.', () => {
+      player._initializeIntermission(null);
+
+      expect(player.intermissionInterval).toBeNull();
+      expect(player.intermissionDataFolderManager).toBeNull();
+      expect(player.intermissionQueue).toBeNull();
+    });
+
+    it('should throw if intermissionInterval is inferior to 1.', () => {
+      expect(() => {
+        player._initializeIntermission(0);
+      }).toThrow();
+      expect(() => {
+        player._initializeIntermission(-1);
+      }).toThrow();
+    });
+
+    it('should set intermission properties with a valid intermissionInterval.', () => {
+      player._initializeIntermission(1);
+
+      expect(player.intermissionInterval).toBe(1);
+      expect(player.intermissionDataFolderManager).toBeInstanceOf(DataFolderManager);
+      expect(player.intermissionQueue).toBeInstanceOf(Queue);
+    });
+  });
+
   describe('initialize()', () => {
     it('should reject MissingArgumentError if no channelID is passed.', () => {
       expect.assertions(1);
@@ -61,7 +92,6 @@ describe('Classes - Player', () => {
       return player.initialize('123')
         .then(() => {
           expect(clientMock.presenceManager.update).toHaveBeenCalledTimes(1);
-          expect(clientMock.presenceManager.update).toHaveBeenCalledWith('◼ Nothing to play');
         });
     });
 
@@ -156,7 +186,7 @@ describe('Classes - Player', () => {
         });
     });
   });
-
+  
   describe('skipCurrentSong()', () => {
     beforeEach(() => {
       player.stream = {
@@ -199,22 +229,9 @@ describe('Classes - Player', () => {
   });
 
   describe('updatePresenceWithSong()', () => {
-    beforeEach(() => {
-      player.currentSong = currentSong;
-    });
-
-    it('should update presence with correct status if player is paused.', () => {
-      player.dispatcher = { paused: true };
+    it('should update the presence.', () => {
       player.updatePresenceWithSong();
       expect(clientMock.presenceManager.update).toBeCalledTimes(1);
-      expect(clientMock.presenceManager.update).toBeCalledWith(`❙ ❙ ${currentSong.title}`);
-    });
-
-    it('should update presence with correct status if player is not paused.', () => {
-      player.dispatcher = { paused: false };
-      player.updatePresenceWithSong();
-      expect(clientMock.presenceManager.update).toBeCalledTimes(1);
-      expect(clientMock.presenceManager.update).toBeCalledWith(`► ${currentSong.title}`);
     });
   });
 
@@ -279,7 +296,6 @@ describe('Classes - Player', () => {
         player.resumeDispatcher();
 
         expect(clientMock.presenceManager.update).toHaveBeenCalledTimes(1);
-        expect(clientMock.presenceManager.update).toHaveBeenCalledWith(`► ${currentSong.title}`);
       });
 
       it('should log that the music resumed.', () => {
@@ -354,7 +370,6 @@ describe('Classes - Player', () => {
         player.pauseDispatcher();
 
         expect(clientMock.presenceManager.update).toHaveBeenCalledTimes(1);
-        expect(clientMock.presenceManager.update).toHaveBeenCalledWith(`❙ ❙ ${currentSong.title}`);
       });
 
       it('should log that the music paused.', () => {
