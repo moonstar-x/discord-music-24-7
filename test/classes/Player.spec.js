@@ -1,8 +1,12 @@
+/* eslint-disable max-statements */
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable max-lines */
 const fs = require('fs');
 const logger = require('@greencoast/logger');
 const Player = require('../../src/classes/Player');
 const { clientMock, channelMock, connectionMock, dispatcherMock } = require('../../__mocks__/discordMocks');
+const Queue = require('../../src/classes/Queue');
+const DataFolderManager = require('../../src/classes/DataFolderManager');
 const MissingArgumentError = require('../../src/classes/errors/MissingArgumentError');
 const VoiceChannelError = require('../../src/classes/errors/VoiceChannelError');
 
@@ -45,6 +49,33 @@ describe('Classes - Player', () => {
     channelMock.join.mockClear();
     dispatcherMock.resume.mockClear();
     dispatcherMock.pause.mockClear();
+  });
+
+  describe('_initializeIntermission()', () => {
+    it('should set intermission properties to null if intermissionInterval is null.', () => {
+      player._initializeIntermission(null);
+
+      expect(player.intermissionInterval).toBeNull();
+      expect(player.intermissionDataFolderManager).toBeNull();
+      expect(player.intermissionQueue).toBeNull();
+    });
+
+    it('should throw if intermissionInterval is inferior to 1.', () => {
+      expect(() => {
+        player._initializeIntermission(0);
+      }).toThrow();
+      expect(() => {
+        player._initializeIntermission(-1);
+      }).toThrow();
+    });
+
+    it('should set intermission properties with a valid intermissionInterval.', () => {
+      player._initializeIntermission(1);
+
+      expect(player.intermissionInterval).toBe(1);
+      expect(player.intermissionDataFolderManager).toBeInstanceOf(DataFolderManager);
+      expect(player.intermissionQueue).toBeInstanceOf(Queue);
+    });
   });
 
   describe('initialize()', () => {
@@ -155,7 +186,7 @@ describe('Classes - Player', () => {
         });
     });
   });
-
+  
   describe('skipCurrentSong()', () => {
     beforeEach(() => {
       player.stream = {
