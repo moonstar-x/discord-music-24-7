@@ -90,6 +90,7 @@ This table contains all the configuration settings you may specify with both env
 | DISCORD_SOUNDCLOUD_CLIENT_ID   | `soundcloud_client_id`   | Only required if queue contains a SoundCloud URL.                                                                                                                                                                                 | Your SoundCloud Client ID. To find your Client ID, check out [this guide](https://www.npmjs.com/package/soundcloud-downloader#client-id).                |
 | DISCORD_YOUTUBE_COOKIE         | `youtube_cookie`         | Preferable to use if your bot is hosted in a network with a static public IP. This will authenticate YouTube requests with your cookie. Tries to avoid the [429 Too Many Requests](#getting-429-too-many-requests-youtube) error. | Your YouTube cookie. To find your YouTube cookie, check out [this guide](#getting-429-too-many-requests).                                                |
 | DISCORD_PLAYING_STATUS         | `playing_status`         | No. (Defaults to `{status_icon} {song_name}`)                                                                                                                                                                                     | A customized playing status. Check [customizing status](#customizing-status) for more information on how to use this.                                    |
+| DISCORD_INTERMISSION_INTERVAL  | `intermission_interval`  | No. (Defaults to `null`)                                                                                                                                                                                                          | The number of songs that are played before an intermission audio is played. Check [intermission audios](#intermission-audios) for more information.      |
 
 > * To see how to find the IDs for users or channels, you can check out [this guide](<https://github.com/moonstar-x/discord-downtime-notifier/wiki/Getting-User,-Channel-and-Server-IDs>).
 > * If you don't have a Discord token yet, you can see a guide on how to get one [here](<https://github.com/moonstar-x/discord-downtime-notifier/wiki/Getting-a-Discord-Bot-Token>).
@@ -109,6 +110,25 @@ The following keys are supported:
 * `{queue_size}`: The size of the queue.
 
 You can add how many of these you want into your status message. You can use as an example: `{status_icon} [{song_index}/{queue_size}]` which will turn into something like `► [3/20]`.
+
+### Intermission Audios
+
+Intermission audios try to emulate ads on a radio station. The `intermission_interval` setting represents the number of songs that will be played before an intermission audio is played. This means that every X number of songs in the queue, an intermission audio will be played.
+This setting needs to be a positive number greater or equal to **1**.
+
+If you set the `intermission_interval` to `null` in your config, no intermissions will be played. If you do add an `intermission_interval`,
+the bot will generate a folder named `local-intermissions` and a file named `intermissions.txt` inside the `data` folder. Both of these act the same way as `local-music` and `queue.txt`, which means that intermission audios
+can be added as local `.mp3` or `.m4a` files inside the `local-intermissions` folder and audio URLs can be added into the `intermissions.txt` file.
+
+If you set an `intermission_interval`, you will need to add at least one file inside the `local-intermissions` folder or add at least an audio URL inside `intermissions.txt`, otherwise the bot will crash.
+
+If you don't wish to use intermissions, simply leave `intermission_interval` set to `null`.
+
+#### Intermission Audio Caveats
+
+Keep in mind that since an intermission audio is not being pulled from the music queue, the `{song_index}` status key will not be incremented.
+
+Currently, the presence status message update does not differentiate between a song being played from the queue and an intermission audio being played.
 
 ## Running on Docker
 
