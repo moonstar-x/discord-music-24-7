@@ -118,7 +118,7 @@ This setting needs to be a positive number greater or equal to **1**.
 
 If you set the `intermission_interval` to `null` in your config, no intermissions will be played. If you do add an `intermission_interval`,
 the bot will generate a folder named `local-intermissions` and a file named `intermissions.txt` inside the `data` folder. Both of these act the same way as `local-music` and `queue.txt`, which means that intermission audios
-can be added as local `.mp3` or `.m4a` files inside the `local-intermissions` folder and audio URLs can be added into the `intermissions.txt` file.
+can be added as local `.mp3`, `.opus` or `.m4a` files inside the `local-intermissions` folder and audio URLs can be added into the `intermissions.txt` file.
 
 If you set an `intermission_interval`, you will need to add at least one file inside the `local-intermissions` folder or add at least an audio URL inside `intermissions.txt`, otherwise the bot will crash.
 
@@ -143,7 +143,7 @@ Check [configuration](#configuration) to see which environment variables you can
 The following volumes can be used:
 
 * `/opt/app/config`: The config folder for the bot, here you can use the `settings.json` file to configure the bot if you don't want to use environment variables.
-* `/opt/app/data`: The data folder for the bot. Here you can find the `queue.txt` file containing all the song URLs for the bot to play. There will also be a `local-music` folder to insert your MP3 or M4A files to play.
+* `/opt/app/data`: The data folder for the bot. Here you can find the `queue.txt` file containing all the song URLs for the bot to play. There will also be a `local-music` folder to insert your MP3, OPUS or M4A files to play.
 
 ## Usage
 
@@ -160,7 +160,7 @@ This bot is designed to work only on one server at a time. Inviting your bot to 
 
 The music that is played is stored in the `queue.txt` inside the `data` folder. You can add the music you want the bot to play in this file. Any links must begin with `https://` or `http://`.
 
-Additionally, you can play local music by inserting `.mp3` or `.m4a` files inside the `data/local-music` folder. Make sure the files are properly ID3 tagged so the bot can get the artist and song name from the metadata.
+Additionally, you can play local music by inserting `.mp3`, `.opus` or or `.m4a` files inside the `data/local-music` folder. Make sure the files are properly ID3 tagged so the bot can get the artist and song name from the metadata.
 
 ## Supported URLs
 
