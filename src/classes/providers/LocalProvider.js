@@ -51,7 +51,7 @@ class LocalProvider extends AbstractProvider {
   }
 }
 
-LocalProvider.FILE_EXTENSIONS = ['mp3', 'm4a'];
+LocalProvider.FILE_EXTENSIONS = ['mp3', 'm4a', 'opus'];
 
 LocalProvider.isFileSupported = (path) => {
   return LocalProvider.FILE_EXTENSIONS.some((ext) => path.endsWith(ext));
