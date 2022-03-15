@@ -1,8 +1,8 @@
 {
   "token": "",
-  "prefix": "!",
+  "prefix": "/dbs ",
   "owner_id": "",
-  "presence_type": "PLAYING",
+  "presence_type": "LISTENING",
   "channel_id": "",
   "shuffle": true,
   "pause_on_empty": true,
